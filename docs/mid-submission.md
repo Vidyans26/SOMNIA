@@ -522,65 +522,10 @@ We're building an **open-source, multimodal AI platform** to democratize sleep h
 - **Global:** Open-source model for adoption worldwide
 
 **The Impact We'll Achieve:**
----
-
-## 9. Remaining Work for Final Submission
-
-### Phase 2 Timeline (Oct 21 - Nov 15, 2025)
-
-#### Week 2 (Oct 21-27)
-- [ ] Real audio processing integration (librosa + server pipeline)
-- [ ] Actual wearable API connections
-- [ ] Database setup & testing (migrations/ORM models)
-- [ ] API deployment to cloud
-
-#### Week 3 (Oct 28 - Nov 3)
-- [ ] Video processing integration
-- [ ] Advanced ML model training
-- [ ] Mobile app testing on devices
-- [ ] Bug fixes & optimization
-
-#### Week 4 (Nov 4-10)
-- [ ] Clinical validation testing
-- [ ] Performance optimization
-- [ ] Security audit
-- [ ] Documentation finalization
-
-#### Week 5 (Nov 11-15)
-- [ ] Final integration testing
-- [ ] Production deployment
-- [ ] App store submission
-- [ ] Final presentation & demo
 
 ---
 
-## 10. Success Metrics
-
-### For Mid-Submission (Oct 21)
-- [x] Concept validation (8 disorders documented via API info endpoint)
-- [x] Multimodal architecture design
-- [x] Working API with mock data
-- [x] Mobile app UI/UX complete
-- [x] Team alignment & documentation
-
-### For Final Submission (Nov 15)
-- [ ] Real audio processing (90%+ accuracy)
-- [ ] Real video processing (85%+ accuracy)
-- [ ] Live wearable integration (3+ brands)
-- [ ] Clinical validation (100+ test cases)
-- [ ] Market-ready deployment
-- [ ] 1,000+ beta testers
-
-### Long-term Impact
-- [ ] Detect 50,000+ sleep disorders in Year 1
-- [ ] Prevent 100+ cardiac deaths through early detection
-- [ ] Support 500,000 users by Year 2
-- [ ] Partnership with 50+ hospitals/clinics
-- [ ] Integration with Ayushman Bharat scheme
-
----
-
-## 11. Team Information
+## 9. Team Information
 
 ### Chimpanzini Bananini Team
 
@@ -600,7 +545,7 @@ We're building an **open-source, multimodal AI platform** to democratize sleep h
 
 ---
 
-## 12. Conclusion
+## 10. Conclusion
 
 SOMNIA represents a breakthrough in accessible healthcare for India. By leveraging multimodal AI and smartphone ubiquity, we're making clinical-grade sleep health monitoring available to the 99% who cannot afford hospital tests.
 
