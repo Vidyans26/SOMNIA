@@ -10,11 +10,11 @@
 
 ## Executive Summary
 
-SOMNIA is a multimodal AI system aimed at detecting critical sleep disorders using audio, video, wearable, and environmental sensors. In the current prototype, the backend returns realistic mock analysis and the mobile app records audio locally to demonstrate the user flow. The goal is to make clinical-grade sleep health monitoring affordable and accessible to every Indian family.
+SOMNIA is a multimodal AI system aimed at detecting critical sleep disorders using audio, video, wearable, and environmental sensors. In the current prototype, the backend returns realistic mock a[...]
 
 **Problem:** 70 million Indians suffer from undiagnosed sleep disorders, yet 99% cannot afford ₹15,000-50,000 sleep lab tests.
 
-**Solution:** SOMNIA - An open-source multimodal AI system vision that democratizes sleep monitoring. Current repository implements a working FastAPI backend with mock analysis and a React Native (Expo) mobile prototype; real audio/video/wearable processing is planned.
+**Solution:** SOMNIA - An open-source multimodal AI system vision that democratizes sleep monitoring. Current repository implements a working FastAPI backend with mock analysis and a React Native [...]
 
 **Impact:** Preventing heart attacks, strokes, and Parkinson's disease through early detection.
 
@@ -103,89 +103,62 @@ MODALITY 5: 🧠 AI INTEGRATION
 
 ### System Architecture Diagram
 
-```
-┌─────────────────────────────────────────────────────────┐
-│              SOMNIA SYSTEM ARCHITECTURE                 │
-└─────────────────────────────────────────────────────────┘
+**Data Collection Layer (Mobile App)**  
+- Smartphone Sensors  
+  - Microphone (Audio Recording)  
+  - Camera (Video Recording - Optional)  
+  - Wearable Sync (Bluetooth)  
+  - Device Sensors (Temperature, Light)  
 
-┌─────────────────────────────────────────────────────────┐
-│            DATA COLLECTION LAYER (Mobile App)           │
-├─────────────────────────────────────────────────────────┤
-│                                                         │
-│  📱 Smartphone Sensors                                  │
-│  ├─ 🎤 Microphone (Audio Recording)                    │
-│  ├─ 📷 Camera (Video Recording - Optional)             │
-│  ├─ 📡 Wearable Sync (Bluetooth)                       │
-│  └─ 🌡️ Device Sensors (Temperature, Light)            │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
-              ↓ (Local Processing)
-┌─────────────────────────────────────────────────────────┐
-│   EDGE PROCESSING LAYER (On-Device AI) — Planned        │
-├─────────────────────────────────────────────────────────┤
-│                                                         │
-│  🎤 Audio Processing (TensorFlow Lite) (planned)       │
-│  ├─ FFT Analysis (Breathing, Snoring)                  │
-│  ├─ Spectrogram Analysis                               │
-│  └─ Apnea Event Detection                              │
-│                                                         │
-│  📹 Video Processing (MediaPipe) (planned)             │
-│  ├─ Pose Estimation                                    │
-│  ├─ Position Classification                            │
-│  └─ Movement Detection                                 │
-│                                                         │
-│  Data Extraction (NO Raw Files Stored)                 │
-│  ├─ Audio → Features (2 KB)                            │
-│  ├─ Video → Position Data (5 KB)                       │
-│  └─ Wearable → Vitals (1 KB)                           │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
-              ↓ (Extracted Features Only)
-┌─────────────────────────────────────────────────────────┐
-│         BACKEND API LAYER (FastAPI Server)              │
-├─────────────────────────────────────────────────────────┤
-│                                                         │
-│  🔄 Multi-Modal Fusion                                 │
-│  ├─ Aggregate all 4 modalities                         │
-│  ├─ Cross-validate findings                            │
-│  └─ Generate confidence scores                         │
-│                                                         │
-│  🧠 AI Analysis Engine                                 │
-│  ├─ LSTM Sleep Stage Classifier                        │
-│  ├─ Disorder Detection Algorithms                      │
-│  └─ Risk Assessment Scoring                            │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
-              ↓
-┌─────────────────────────────────────────────────────────┐
-│   DATABASE LAYER: SQLite (dev). PostgreSQL planned      │
-├─────────────────────────────────────────────────────────┤
-│                                                         │
-│  Encrypted Storage (AES-256) (planned)                 │
-│  ├─ Sleep Records (Time-Series)                        │
-│  ├─ Analysis Results                                   │
-│  ├─ User Profiles                                      │
-│  └─ Historical Data (for trends)                       │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
-              ↓
-┌─────────────────────────────────────────────────────────┐
-│          PRESENTATION LAYER (Mobile; Web planned)       │
-├─────────────────────────────────────────────────────────┤
-│                                                         │
-│  📱 Mobile App (React Native + Expo)                   │
-│  ├─ Recording UI (expo-av)                             │
-│  ├─ Results view (metric cards)                        │
-│  ├─ History (AsyncStorage)                             │
-│  └─ Trend/reporting (planned)                          │
-│                                                         │
-│  🌐 Web Dashboard (Next.js) — planned                  │
-│  ├─ Detailed Analytics                                 │
-│  ├─ Export/Share Reports                               │
-│  └─ Settings & Preferences                             │
-│                                                         │
-└─────────────────────────────────────────────────────────┘
-```
+↓ (Local Processing)  
+
+**Edge Processing Layer (On-Device AI) — Planned**  
+- Audio Processing (TensorFlow Lite) (planned)  
+  - FFT Analysis (Breathing, Snoring)  
+  - Spectrogram Analysis  
+  - Apnea Event Detection  
+- Video Processing (MediaPipe) (planned)  
+  - Pose Estimation  
+  - Position Classification  
+  - Movement Detection  
+- Data Extraction (NO Raw Files Stored)  
+  - Audio → Features (2 KB)  
+  - Video → Position Data (5 KB)  
+  - Wearable → Vitals (1 KB)  
+
+↓ (Extracted Features Only)  
+
+**Backend API Layer (FastAPI Server)**  
+- Multi-Modal Fusion  
+  - Aggregate all 4 modalities  
+  - Cross-validate findings  
+  - Generate confidence scores  
+- AI Analysis Engine  
+  - LSTM Sleep Stage Classifier  
+  - Disorder Detection Algorithms  
+  - Risk Assessment Scoring  
+
+↓  
+
+**Database Layer: SQLite (dev). PostgreSQL planned**  
+- Encrypted Storage (AES-256) (planned)  
+  - Sleep Records (Time-Series)  
+  - Analysis Results  
+  - User Profiles  
+  - Historical Data (for trends)  
+
+↓  
+
+**Presentation Layer (Mobile; Web planned)**  
+- Mobile App (React Native + Expo)  
+  - Recording UI (expo-av)  
+  - Results view (metric cards)  
+  - History (AsyncStorage)  
+  - Trend/reporting (planned)  
+- Web Dashboard (Next.js) — planned  
+  - Detailed Analytics  
+  - Export/Share Reports  
+  - Settings & Preferences  
 
 ---
 
@@ -390,13 +363,13 @@ Containerization: Docker + Docker Compose
 **Single Modality Problems:**
 ```
 Audio only:  "Patient snores loudly"
-            → But is it harmless snoring or life-threatening apnea?
+             → But is it harmless snoring or life-threatening apnea?
 
 Video only:  "Patient sleeping on back"
-            → So what? Doesn't confirm any disorder
+             → So what? Doesn't confirm any disorder
 
 Wearable:   "SpO2 dropped to 87%"
-            → Could be sensor error, movement, or real apnea?
+             → Could be sensor error, movement, or real apnea?
 ```
 
 **Multimodal Solution (target design):**
@@ -547,7 +520,7 @@ We're building an **open-source, multimodal AI platform** to democratize sleep h
 
 ## 10. Conclusion
 
-SOMNIA represents a breakthrough in accessible healthcare for India. By leveraging multimodal AI and smartphone ubiquity, we're making clinical-grade sleep health monitoring available to the 99% who cannot afford hospital tests.
+SOMNIA represents a breakthrough in accessible healthcare for India. By leveraging multimodal AI and smartphone ubiquity, we're making clinical-grade sleep health monitoring available to the 99% [...]
 
 Our mid-submission demonstrates:
 - ✅ Clear problem identification (70M affected)
