@@ -563,25 +563,4 @@ We're on track to complete the final submission with full real-time processing, 
 
 ---
 
-## Appendix: Links & Resources
 
-### Repository
-- **GitHub:** https://github.com/Vidyans26/SOMNIA
-- **Commits:** Public development history
-- **Documentation:** Complete README + inline comments
-
-### APIs & Services
-- **Backend:** Running locally on `http://localhost:8000`
-- **API Docs:** `http://localhost:8000/docs` (Swagger UI)
-- **Demo Data:** `GET /api/v1/demo-analysis`
-
-### Contact
-- **Team Email:** chimpanzini.bananini@hackathon.com
-- **GitHub:** Vidyans26
-- **Hackathon:** IIT Mandi iHub Multimodal AI
-
----
-
-**Last Updated:** October 21, 2025  
-**Status:** Mid-Submission Ready  
-**Version:** 0.1.0
