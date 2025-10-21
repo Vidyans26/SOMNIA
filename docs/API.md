@@ -4,7 +4,6 @@
 **Project:** SOMNIA - Sleep Health Monitoring System  
 **Base URL:** `http://localhost:8000` (development)  
 **Version:** 0.1.0  
-**Last Updated:** October 19, 2025
 
 ---
 
@@ -745,6 +744,5 @@ For API issues:
 
 ---
 
-**Last Updated:** October 19, 2025  
 **Version:** 0.1.0  
 **Team:** Chimpanzini Bananini
