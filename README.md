@@ -221,10 +221,11 @@ For comprehensive API documentation, see [API.md](./docs/API.md)
 ## 👥 Team
 
 **Current Development Team:**
-Vidyans Sankalp
-Khushbu Sharma
-Dharmesh Sahu
-Ved Pashine
+- Ved Pashine
+- Khushbu Sharma
+- Dharmesh Sahu
+- Vidyans Sankalp
+
 ---
 
 ## 📚 Documentation
