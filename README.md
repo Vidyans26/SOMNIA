@@ -85,7 +85,7 @@ Get SOMNIA up and running in under 5 minutes!
 - **Python 3.11+** ([download](https://www.python.org/downloads/))
 - **Node.js 18+** ([download](https://nodejs.org/))
 - **Git** ([download](https://git-scm.com/))
-- **Android Studio** or **Xcode** (for mobile testing)
+- **Expo Go App** (for mobile testing)
 
 #### 1. Clone the Repository
 ```bash
