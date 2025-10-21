@@ -1,5 +1,3 @@
-# SOMNIA
-"Somnia knows your sleep better than you do."
 # 🌙 SOMNIA - Sleep Health Monitoring System
 
 > **"Somnia knows your sleep better than you do."**
@@ -90,67 +88,14 @@ Results & Recommendations
 Mobile Dashboard
 ```
 
-For detailed architecture, see [ARCHITECTURE.md](./docs/ARCHITECHTURE.md)
+For detailed architecture, see [ARCHITECTURE.md](./docs/ARCHITECTURE.md)
 
 ---
 
 ## 🚀 Quick Start
 
-### Prerequisites
-- Python 3.8+
-- Node.js 14+ and npm
-- React Native CLI
-- Git
 
-### Backend Setup
-
-```bash
-# Clone the repository
-git clone https://github.com/Vidyans26/SOMNIA.git
-cd SOMNIA
-
-# Navigate to backend
-cd backend
-
-# Create virtual environment
-python -m venv venv
-
-# Activate virtual environment
-# On Windows:
-venv\Scripts\activate
-# On macOS/Linux:
-source venv/bin/activate
-
-# Install dependencies
-pip install -r requirements.txt
-
-# Create .env file
-cp .env.example .env
-
-# Run the backend server
-python -m uvicorn main:app --reload
-```
-
-The API will be available at: **http://localhost:8000**
-Interactive API docs: **http://localhost:8000/docs**
-
-### Mobile App Setup
-
-```bash
-# Navigate to mobile app
-cd mobile-app
-
-# Install dependencies
-npm install
-
-# Run the app (iOS)
-npm run ios
-
-# Run the app (Android)
-npm run android
-```
-
-For detailed setup instructions, see [SETUP.md](./docs/SETUP.md)
+For setup instructions, please refer to [SETUP.md](./docs/SETUP.md)
 
 ---
 
@@ -158,29 +103,54 @@ For detailed setup instructions, see [SETUP.md](./docs/SETUP.md)
 
 ```
 SOMNIA/
-├── backend/
-│   ├── main.py                 # FastAPI application
-│   ├── config.py               # Configuration settings
-│   ├── requirements.txt         # Python dependencies
-│   ├── models/
-│   │   ├── sleep_analyzer.py   # Sleep analysis functions
-│   │   └── sleep_report.py     # Report generation
-│   └── utils/
-│       └── auth.py             # Authentication utilities
-├── mobile-app/
-│   ├── App.js                  # Main React Native app
-│   ├── package.json            # JavaScript dependencies
-│   └── src/
-│       ├── screens/            # App screens
-│       └── context/            # State management
-├── docs/
-│   ├── mid-submission.md       # Mid-submission report
-│   ├── SETUP.md                # Installation guide
-│   ├── API.md                  # API documentation
-│   └── ARCHITECHTURE.md        # System architecture
-├── README.md                   # This file
-├── LICENSE                     # MIT License
-└── .gitignore                  # Git ignore rules
+├── .gitignore                               
+├── LICENSE                         
+├── README.md                  
+│
+├── backend/                            
+│   ├── __init__.py                      
+│   ├── .env.example                    
+│   ├── config.py                     
+│   ├── main.py                         
+│   ├── requirements.txt                        
+│   ├── models/                                
+│   │   ├── __init__.py
+│   │   ├── sleep_analyzer.py                  
+│   │   └── sleep_report.py                    
+│   └── utils/                                 
+│       └── auth.py                            
+│
+├── somnia-app/SOMNIA app/Somnia/           
+│   ├── .gitignore                             
+│   ├── README.md                              
+│   ├── app.json                             
+│   ├── package.json                          
+│   ├── tsconfig.json                         
+│   ├── babel.config.js                      
+│   ├── metro.config.js                      
+│   ├── app/                                  
+│   │   ├── (tabs)/
+│   │   │   ├── home.tsx
+│   │   │   ├── recording.tsx
+│   │   │   ├── results.tsx
+│   │   │   ├── profile.tsx
+│   │   │   └── disorders.tsx
+│   │   ├── _layout.tsx
+│   │   └── +not-found.tsx
+│   ├── components/                            
+│   ├── context/                              
+│   ├── utils/                                  
+│   ├── types/                                 
+│   ├── assets/                                
+│   │   └── images/
+│   └── node_modules/                          
+│
+└── docs/                                      
+    ├── mid-submission.md                      
+    ├── SETUP.md                                
+    ├── API.md                                
+    └── ARCHITECTURE.md                         
+
 ```
 
 ---
@@ -251,14 +221,10 @@ For comprehensive API documentation, see [API.md](./docs/API.md)
 ## 👥 Team
 
 **Current Development Team:**
-- Team Lead & Full Stack Developer
-- Data Science & ML Engineer
-- Mobile App Developer
-- Backend API Developer
-- Documentation & QA
-
-*Note: Team details will be finalized before final submission*
-
+Vidyans Sankalp
+Khushbu Sharma
+Dharmesh Sahu
+Ved Pashine
 ---
 
 ## 📚 Documentation
@@ -266,7 +232,7 @@ For comprehensive API documentation, see [API.md](./docs/API.md)
 - **[mid-submission.md](./docs/mid-submission.md)** - Comprehensive mid-submission report with progress updates
 - **[SETUP.md](./docs/SETUP.md)** - Detailed installation and setup instructions
 - **[API.md](./docs/API.md)** - Complete API endpoint documentation
-- **[ARCHITECHTURE.md](./docs/ARCHITECHTURE.md)** - System architecture and design decisions
+- **[ARCHITECHTURE.md](./docs/ARCHITECTURE.md)** - System architecture and design decisions
 
 ---
 
@@ -309,7 +275,7 @@ For comprehensive API documentation, see [API.md](./docs/API.md)
 
 ## 📊 Current Status
 
-### Mid-Submission (October 19, 2025)
+### Mid-Submission
 ✅ **Completed:**
 - Backend API with 7+ endpoints
 - Mobile app UI with 5 screens
@@ -324,12 +290,6 @@ For comprehensive API documentation, see [API.md](./docs/API.md)
 - Real-time data processing
 - Performance optimization
 
-🎯 **Upcoming:**
-- Demo video recording
-- Final testing and QA
-- Production deployment
-- Final submission (October 21, 2025)
-
 ---
 
 ## 📞 Support & Feedback
@@ -337,7 +297,6 @@ For comprehensive API documentation, see [API.md](./docs/API.md)
 For questions, issues, or suggestions:
 - Open an issue on GitHub: [SOMNIA Issues](https://github.com/Vidyans26/SOMNIA/issues)
 - Check documentation: [/docs](./docs/)
-- Review API docs: http://localhost:8000/docs
 
 ---
 
@@ -361,7 +320,6 @@ This project is licensed under the **MIT License** - see [LICENSE](./LICENSE) fi
 **Project:** SOMNIA - Sleep Health Monitoring System
 **Repository:** https://github.com/Vidyans26/SOMNIA
 **Status:** Active Development
-**Last Updated:** October 19, 2025
 
 ---
 
