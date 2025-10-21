@@ -1,111 +1,89 @@
 # SOMNIA System Architecture
 ## Comprehensive Technical Design Document
+**Date:** October 21, 2025  
 
 **Team:** Chimpanzini Bananini  
 **Project:** SOMNIA - Sleep Health Monitoring System  
-**Date:** October 19, 2025  
-**Version:** 0.1.0
-
----
-
+SOMNIA is a multimodal sleep health monitoring system (prototype) that integrates:
+- **5 Data Modalities (target):** Audio, Video, Wearables, Environmental Sensors, AI Integration
+- **8 Sleep Disorders:** Informational endpoint implemented; basic heuristic detection for a subset using mock analysis
+- **User Interfaces:** Mobile App (Expo/React Native) implemented; Web Dashboard/Doctor Portal planned
+- **Processing:** Mock analysis on backend; Edge AI and real multimodal processing planned
 ## Table of Contents
 
+1. **Privacy First (target):** On-device feature extraction (planned)
 1. [System Overview](#system-overview)
 2. [High-Level Architecture](#high-level-architecture)
 3. [Data Flow](#data-flow)
+      │   API (FastAPI)                  │
 4. [Component Details](#component-details)
-5. [Technology Stack](#technology-stack)
-6. [Deployment Architecture](#deployment-architecture)
-7. [Security Architecture](#security-architecture)
+      │   Business Logic Layer           │
+      │   - Mock Sleep Analysis Engine   │
+      │   - Basic Disorder Heuristics    │
+      │   - Report Generation            │
 8. [Scalability Strategy](#scalability-strategy)
-
----
-
+      │   Data Access Layer              │
+      │   - SQLite (dev default)         │
+      │   - PostgreSQL/TimescaleDB (planned)
+      │   - Redis (planned)              │
 ## System Overview
 
-SOMNIA is a multimodal sleep health monitoring system that integrates:
+External Services (planned):
 
 - **5 Data Modalities:** Audio, Video, Wearables, Environmental Sensors, AI Integration
 - **8 Sleep Disorders:** Detection algorithms for critical conditions
 - **3 User Interfaces:** Mobile App (React Native), Web Dashboard (Next.js), Doctor Portal
 - **Distributed Processing:** Edge AI (on-device) + Cloud Processing
+├─ Apple HealthKit / Google Fit / Mi Fit
+├─ OpenAI API (report generation)
+└─ AWS S3 (encrypted file storage)
 
 ### Core Principles
-
+### API Endpoints Overview (current)
 1. **Privacy First:** 99.99998% data reduction on-device
 2. **Accessibility:** Works on any smartphone
 3. **Accuracy:** 90-92% multimodal accuracy
 4. **Affordability:** ₹199/month subscription
 
----
+// Not implemented in this repository (planned): reports, trends, auth endpoints, user profile/settings
 
 ## High-Level Architecture
-
+### 1. Mobile App (Expo/React Native)
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    SOMNIA ECOSYSTEM                         │
+#### Architecture Pattern: Expo Router + Local State
 └─────────────────────────────────────────────────────────────┘
 
-┌──────────────────┐  ┌──────────────────┐  ┌──────────────────┐
+App.js (Entry Point) and Expo Router tabs
 │  Mobile App      │  │  Web Dashboard   │  │  Doctor Portal   │
 │  (React Native)  │  │  (Next.js)       │  │  (Next.js)       │
-└────────┬─────────┘  └────────┬─────────┘  └────────┬─────────┘
+├─ Services (planned)
          │                     │                     │
          └─────────────────────┴─────────────────────┘
                         ↓
-         ┌──────────────────────────────────┐
+│  └─ Storage service wrapper
          │   API Gateway (FastAPI)          │
          │   - Authentication               │
-         │   - Rate Limiting                │
+**Key Libraries:**
+- Expo Router (navigation)
+- Expo AV (audio recording)
+- AsyncStorage (local persistence)
+- Expo components (UI)
          │   - CORS                         │
          └──────────┬───────────────────────┘
-                    ↓
+### 2. Backend API (FastAPI)
          ┌──────────────────────────────────┐
          │   Business Logic Layer           │
-         │   - Sleep Analysis Engine        │
-         │   - Disorder Detection           │
-         │   - Report Generation            │
-         └──────────┬───────────────────────┘
-                    ↓
-         ┌──────────────────────────────────┐
-         │   Data Access Layer              │
-         │   - PostgreSQL                   │
-         │   - TimescaleDB (Time-Series)    │
-         │   - Redis Cache                  │
-         └──────────────────────────────────┘
-
-External Services:
-├─ Apple HealthKit (iOS Wearables)
-├─ Google Fit (Android Wearables)
-├─ Xiaomi Mi Fit (Popular in India)
-├─ OpenAI API (Report Generation)
-└─ AWS S3 (File Storage - Encrypted)
 ```
-
----
-
-## Data Flow
-
-### Complete Sleep Monitoring Flow
-
-```
-NIGHT TIME:
-1. User Launches SOMNIA App
-2. Grants Microphone Permission
-3. Taps "Start Sleep Monitoring"
-4. Phone Records:
-   ├─ 🎤 Audio (8 hours continuous)
-   ├─ 📹 Video (optional, from front camera)
-   ├─ ❤️ Wearable data (Bluetooth sync)
-   └─ 🌡️ Environmental data (sensors)
-
-REAL-TIME PROCESSING (On-Device, No Upload):
-5. Edge AI processes incoming data
-   ├─ Audio FFT → Breathing patterns
-   ├─ Video MediaPipe → Position tracking
-   ├─ Wearable → Heart rate, SpO2
-   └─ Extract features only (discard raw data)
-
+backend/
+├─ main.py              # Entry point with routes
+├─ config.py            # Configuration (SQLite default)
+├─ requirements.txt     # Dependencies
+├─ models/
+│  ├─ sleep_analyzer.py # Mock analysis + heuristics
+│  └─ sleep_report.py   # Report text/metrics
+└─ utils/
+  └─ auth.py           # Auth stub (demo user)
 6. Feature Extraction (8 GB → 2 KB):
    ├─ Audio Features: [apnea_events, snoring_duration, intensity]
    ├─ Video Features: [position, movements, REM_signs]

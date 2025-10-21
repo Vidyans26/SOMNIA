@@ -199,7 +199,7 @@ curl http://localhost:8000/api/v1/demo-analysis
 
 ```bash
 # Navigate to mobile app directory
-cd somnia-app/SOMNIA app
+cd "somnia-app/SOMNIA app/Somnia"
 
 # Verify Node.js installation
 node --version  # Should be 18+
@@ -238,7 +238,7 @@ npx expo start
 #### Step 5: Development Server
 
 ```bash
-# In separate terminal, start Metro bundler
+# Optional: Start via npm script (equivalent)
 npm start
 
 # This provides live reloading
@@ -312,7 +312,7 @@ docker-compose down
 
 ### Database Setup
 
-#### PostgreSQL (Production)
+#### PostgreSQL (Production - Planned)
 
 ```bash
 # Install PostgreSQL
@@ -353,7 +353,7 @@ DATABASE_URL=sqlite:///./somnia.db
 
 ## Testing
 
-### Backend Testing
+### Backend Testing (Optional)
 
 #### Unit Tests
 
@@ -361,7 +361,7 @@ DATABASE_URL=sqlite:///./somnia.db
 # Navigate to backend
 cd backend
 
-# Run all tests
+# Run all tests (if tests are added)
 pytest
 
 # Run specific test file
@@ -404,7 +404,7 @@ pytest --cov=backend tests/
 # iOS: App Store
 
 # Start the Expo development server
-cd somnia-app/SOMNIA app
+cd "somnia-app/SOMNIA app/Somnia"
 npx expo start
 
 # Scan the QR code provided in the terminal using the Expo Go app on the phone. 

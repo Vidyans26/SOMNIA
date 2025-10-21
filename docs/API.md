@@ -5,6 +5,8 @@
 **Base URL:** `http://localhost:8000` (development)  
 **Version:** 0.1.0  
 
+> Implementation note: This mid-submission backend returns realistic mock analysis. File uploads are validated by extension but not persisted/processed yet; the analysis endpoint ignores uploaded file IDs and generates mock results.
+
 ---
 
 ## Table of Contents
@@ -61,10 +63,10 @@ Content-Type: application/json
 
 ### Getting Started (Mock Auth)
 
-For development/testing, all requests are accepted. In production:
+For development/testing, authorization is mocked and any non-empty bearer token string will pass dependency checks. In production (planned):
 
 ```bash
-# Login endpoint (not yet implemented)
+# Login endpoint (planned; not implemented in this repo)
 POST /auth/login
 {
   "email": "user@example.com",
@@ -202,7 +204,7 @@ file: (binary) Audio file
 
 **Endpoint:** `POST /api/v1/analyze`
 
-**Description:** Analyze multimodal sleep data and detect disorders
+**Description:** Analyze multimodal sleep data and detect disorders (currently returns mock analysis; audio_file_id is ignored)
 
 **Authentication:** ✅ Required (Bearer token)
 
@@ -565,9 +567,11 @@ All errors follow this format:
 
 ---
 
-## Rate Limiting
+## Rate Limiting (Planned)
 
-### Limits by Endpoint Type
+Rate limiting is described here for future implementation but is not active in this codebase yet.
+
+### Limits by Endpoint Type (proposed)
 
 | Endpoint Type | Limit | Window |
 |---------------|-------|--------|
@@ -576,7 +580,7 @@ All errors follow this format:
 | Analysis endpoint | 50 requests | 1 hour |
 | File upload | 20 requests | 1 hour |
 
-### Rate Limit Headers
+### Rate Limit Headers (proposed)
 
 ```
 X-RateLimit-Limit: 100
@@ -584,7 +588,7 @@ X-RateLimit-Remaining: 95
 X-RateLimit-Reset: 1697814000
 ```
 
-### When Rate Limited
+### When Rate Limited (proposed)
 
 If you exceed the limit, you'll receive a **429** response:
 
