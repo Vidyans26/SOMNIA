@@ -79,8 +79,45 @@ For detailed architecture, see [ARCHITECTURE.md](./docs/ARCHITECTURE.md)
 
 ## 🚀 Quick Start
 
+Get SOMNIA up and running in under 5 minutes!
 
-For setup instructions, please refer to [SETUP.md](./docs/SETUP.md)
+#### Prerequisites
+- **Python 3.11+** ([download](https://www.python.org/downloads/))
+- **Node.js 18+** ([download](https://nodejs.org/))
+- **Git** ([download](https://git-scm.com/))
+- **Android Studio** or **Xcode** (for mobile testing)
+
+#### 1. Clone the Repository
+```bash
+git clone https://github.com/Vidyans26/SOMNIA.git
+cd SOMNIA
+```
+
+#### 2. Set Up Backend (FastAPI)
+```bash
+cd backend
+python -m venv venv
+# On Windows:
+venv\Scripts\activate
+# On Mac/Linux:
+source venv/bin/activate
+pip install -r requirements.txt
+python -m uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+**Backend URL:** http://localhost:8000 (API docs at `/docs`)
+
+#### 3. Set Up Mobile App (React Native)
+```bash
+cd mobile-app
+npm install
+npx expo start
+```
+
+#### 4. Test It
+- Visit http://localhost:8000 in your browser or run `curl http://localhost:8000/` for a health check.
+- Open the Expo app on your device to test the mobile interface.
+
+You're all set! 🎉 For detailed setup or troubleshooting, check `docs/SETUP.md`.
 
 ---
 
@@ -151,13 +188,13 @@ http://localhost:8000/api/v1
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| GET | `/health` | Health check |
-| GET | `/disorders` | List all sleep disorders |
-| GET | `/team` | Team information |
-| POST | `/demo-analysis` | Analyze sleep data |
-| GET | `/sleep-logs` | Get user sleep logs |
-| POST | `/feedback` | Submit user feedback |
-| GET | `/resources` | Get sleep resources |
+| GET | `/health` | Root health check |
+| GET | `/api/v1/health` | Detailed health check |
+| POST | `/api/v1/upload/audio` | Upload audio file |
+| POST | `/api/v1/analyze` | Analyze sleep data |
+| GET | `/api/v1/disorders` | List all 8 sleep disorders |
+| GET | `/api/v1/team` | Team information |
+| GET | `/api/v1/demo-analysis` | Demo analysis results |
 
 ### Example Request
 
