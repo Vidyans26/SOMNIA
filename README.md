@@ -169,11 +169,17 @@ curl -X GET http://localhost:8000/api/v1/disorders
 
 ```json
 {
+  "total_disorders": 8,
   "disorders": [
-    "Insomnia",
-    "Sleep Apnea",
-    "Narcolepsy",
-    "Restless Legs Syndrome"
+    {
+      "id": "sleep_apnea",
+      "name": "Sleep Apnea & Snoring",
+      "description": "Repeated breathing interruptions during sleep (>10 seconds)",
+      "prevalence": "30-40 million undiagnosed Indians",
+      "symptoms": ["Loud snoring", "Gasping for air", "Daytime fatigue"],
+      "risk_level": "HIGH"
+    }
+    // ... 7 more disorders
   ]
 }
 ```
@@ -235,11 +241,13 @@ For comprehensive API documentation, see [API.md](./docs/API.md)
 - **PyJWT** - JWT authentication
 
 ### Mobile
+- **Expo** - Development platform for React Native
 - **React Native** - Cross-platform mobile framework
-- **JavaScript/TypeScript** - Application logic
+- **TypeScript** - Type-safe development
+- **Expo Router** - File-based routing
 - **Context API** - State management
-- **Axios** - HTTP client
-
+- **AsyncStorage** - Data persistence
+- **Expo Audio/AV** - Audio recording and playback
 ### Tools
 - **Git** - Version control
 - **GitHub** - Repository hosting
