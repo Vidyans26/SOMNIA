@@ -584,12 +584,12 @@ We're building an **open-source, multimodal AI platform** to democratize sleep h
 
 ### Chimpanzini Bananini Team
 
-| Member | Role | Contribution |
-|--------|------|--------------|
-| Vidyans Sankalp | Lead Developer | Backend API, Architecture |
-| Ved Pashine | Frontend/Mobile | Mobile app, UI/UX (Expo/React Native) |
-| Khushbu Sharma | Frontend/Mobile | Mobile UI/UX, docs |
-| Dharmesh Sahu | Testing & QA | Testing, validation |
+| Name | GitHub |
+|------|--------|
+| Vidyans Sankalp | Vidyans26 |
+| Khushbu Sharma | Khusbu710 |
+| Ved Pashine | pashineved-cyber |
+| Dharmesh Sahu | dhakkann |
 
 ### Team Strengths
 - ✅ Strong Python/FastAPI backend development
