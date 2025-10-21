@@ -6,21 +6,6 @@ SOMNIA is an advanced multimodal sleep health monitoring system that analyzes sl
 
 ---
 
-## 📋 Table of Contents
-
-- [Overview](#overview)
-- [Features](#features)
-- [System Architecture](#system-architecture)
-- [Quick Start](#quick-start)
-- [Project Structure](#project-structure)
-- [API Documentation](#api-documentation)
-- [Mobile App](#mobile-app)
-- [Team](#team)
-- [Documentation](#documentation)
-- [License](#license)
-
----
-
 ## 🎯 Overview
 
 SOMNIA is a comprehensive sleep monitoring solution that combines:
