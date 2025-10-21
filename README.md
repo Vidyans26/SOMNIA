@@ -312,13 +312,13 @@ For comprehensive API documentation, see [API.md](./docs/API.md)
 - Mobile app UI with 5 screens
 - Sleep analysis models
 - Authentication system
-- Comprehensive documentation (50+ pages)
 - GitHub repository setup
 
 ⏳ **In Progress:**
 - Advanced ML models for disorder detection
 - Mobile app backend integration
 - Real-time data processing
+- Comprehensive documentation (50+ pages)
 - Performance optimization
 
 ---
