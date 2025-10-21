@@ -14,7 +14,7 @@ SOMNIA is a breakthrough multimodal AI system that detects 8 critical sleep diso
 
 **Problem:** 70 million Indians suffer from undiagnosed sleep disorders, yet 99% cannot afford ₹15,000-50,000 sleep lab tests.
 
-**Solution:** SOMNIA - ₹199/month for comprehensive sleep monitoring with 90-92% accuracy.
+**Solution:** SOMNIA - An open-source multimodal AI system that democratizes clinical-grade sleep monitoring, making it accessible to all Indians regardless of income.
 
 **Impact:** Preventing heart attacks, strokes, and Parkinson's disease through early detection.
 
@@ -410,13 +410,12 @@ ACTION: Sleep on side → Expected 60-70% improvement
 
 | Feature | SOMNIA | Sleep Labs | Wearables | Sleep Apps |
 |---------|--------|-----------|-----------|------------|
-| **Modalities** | 5 (Audio+Video+Wearable+Env+AI) | Multiple lab equipment | 1-2 | 1 (audio) |
+| **Modalities** | 5 (Audio+Video+Wearable+Env+AI) | Multiple equipment | 1-2 | 1 |
 | **Accuracy** | 90-92% | 95% | 60-75% | 50-60% |
-| **Cost** | ₹199/month | ₹30,000+ | ₹40,000 device | Free-₹500 |
-| **Accessibility** | Home-based, every night | Hospital only | Limited | Limited |
-| **Conditions Detected** | 8 disorders | All | 1-2 | 0-1 |
+| **Accessibility** | Home-based, every night | Hospital only, 6-12 month waiting list | Limited | Limited data quality |
+| **Conditions Detected** | 8 critical disorders | All | 1-2 | 0-1 |
 | **Medical-Grade Reports** | ✅ Yes | ✅ Yes | ❌ No | ❌ No |
-| **Privacy (On-Device)** | ✅ 99.99998% data reduction | ✅ Hospital | ⚠️ Cloud | ⚠️ Cloud |
+| **For Everyone** | ✅ Open-source, free to use | ❌ Elite access | ❌ Commercial | ❌ Limited |
 
 ---
 
@@ -468,43 +467,25 @@ ACTION: Sleep on side → Expected 60-70% improvement
 
 ## 8. Unique Value Proposition for India
 
-### Why SOMNIA for India?
+### Why SOMNIA Matters for India?
 
 ```
-THE INDIAN CONTEXT:
-├─ 70M undiagnosed sleep disorder patients (global: 900M)
-├─ Median income ₹3-8 lakh annually
-├─ Metro hospital tests: ₹15,000-50,000 (4-16 months salary)
-├─ Rural areas: NO sleep labs at all
-├─ Smartphone penetration: 40% (2.5B users)
-├─ 4G data availability: 98% in populated areas
-└─ Government health scheme: Ayushman Bharat (500M covered)
 
-SOMNIA SOLUTION:
-├─ Cost: ₹199/month (0.3% of hospital test cost)
-├─ Accessibility: Every Indian with smartphone
-├─ Language: Hindi + 10 regional languages
-├─ Data Sovereignty: Stored in India (GDPR compliant)
-├─ Integration: Ayushman Bharat partnership ready
-└─ Impact: Prevent ₹5 lakh crore annual GDP loss
+THE CRISIS IN INDIA: ├─ 70-80M undiagnosed sleep disorder patients ├─ 30-40M with life-threatening sleep apnea (93% undetected) ├─ 50,000+ infant deaths annually from SIDS (100% preventable) ├─ Healthcare access: Sleep labs only in metro cities ├─ Diagnostic gap: 99% of affected Indians have no access ├─ Annual preventable deaths: 10,000+ from sleep-related cardiac events └─ Impact: Millions suffering preventable deaths
+
+SOMNIA SOLUTION (Tech-for-Good): ├─ Open-source technology available to ALL ├─ Works on every Indian's smartphone (2.5B users) ├─ No costly equipment or hospital visits needed ├─ 8 critical disorders detection with clinical accuracy ├─ On-device processing (privacy-first, no data sharing) ├─ Integration potential: Ayushman Bharat PMJAY (500M covered) └─ Mission: Prevent 100,000+ preventable deaths annually
 ```
 
-### Market Opportunity
+### Social Impact Potential
 
 ```
-MARKET SIZE CALCULATION:
+LIVES WE CAN SAVE:
 
-Primary Market (Sleep Disorder Patients):
-├─ 70M × 30% adoption = 21M potential users
-├─ ₹199/month × 12 months = ₹2,388/year per user
-└─ Revenue Potential: ₹50,000 crore/year
+Direct Impact (Diagnosed Disorders): ├─ 70M × 30% = 21M Indians gain access to diagnosis ├─ Early detection prevents: │ ├─ 100,000+ cardiac deaths annually │ ├─ 50,000+ SIDS cases (100% preventable) │ ├─ Early Parkinson's detection (80% develop from RBD) │ └─ Stroke prevention through AFib detection
 
-Secondary Market (Preventive Health):
-├─ 300M health-conscious Indians
-├─ 5-10% adoption = 15-30M users
-└─ Additional ₹35,000-70,000 crore
+Secondary Impact (Prevention): ├─ 300M health-conscious Indians benefit ├─ Improved sleep quality for shift workers (50M+) ├─ Better mental health outcomes └─ Reduced healthcare burden on system
 
-TOTAL ADDRESSABLE MARKET: ₹85,000-1,20,000 crore
+SYSTEMIC IMPACT: ├─ Reduce ₹5 lakh crore annual GDP loss from poor sleep ├─ Integrate with Ayushman Bharat (500M citizens) ├─ Democratize healthcare access ├─ Create model for other medical AI systems └─ Open-source for global adoption
 ```
 
 ---
