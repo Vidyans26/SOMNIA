@@ -3,7 +3,7 @@
 **Team:** Chimpanzini Bananini  
 **Project:** SOMNIA - Sleep Health Monitoring System  
 **Version:** 0.1.0  
-**Last Updated:** October 19, 2025
+**Last Updated:** October 21, 2025
 
 ---
 
@@ -69,11 +69,9 @@ cd mobile-app
 # Install dependencies
 npm install
 
-# Run on Android
-npm run android
+#To run
+npx expo start
 
-# OR run on iOS
-npm run ios
 ```
 
 ### 4. Test the System
@@ -201,7 +199,7 @@ curl http://localhost:8000/api/v1/demo-analysis
 
 ```bash
 # Navigate to mobile app directory
-cd mobile-app
+cd somnia-app/SOMNIA app
 
 # Verify Node.js installation
 node --version  # Should be 18+
@@ -221,67 +219,31 @@ npm install
 npm list
 ```
 
-#### Step 3: Configure for Android (Windows/Mac)
+#### Step 3: Install Expo Go on Your Mobile Device
 
 ```bash
-# Install Android build tools (if not already installed)
-# Download Android Studio from: https://developer.android.com/studio
+Android: Install from Google Play Store
+iOS: Install from App Store
 
-# Set ANDROID_HOME environment variable
-# Windows:
-setx ANDROID_HOME %USERPROFILE%\AppData\Local\Android\sdk
-# Mac:
-export ANDROID_HOME=~/Library/Android/sdk
-
-# Verify ADB (Android Debug Bridge)
-adb --version
+# This is required to scan the QR code and run the app on your phone.
 ```
 
-#### Step 4: Configure for iOS (Mac Only)
+#### Step 4: Start the server
 
 ```bash
-# Install Xcode Command Line Tools
-xcode-select --install
-
-# Install CocoaPods
-sudo gem install cocoapods
-
-# Install iOS dependencies
-cd ios
-pod install
-cd ..
+# Start the Expo server
+npx expo start
 ```
 
-#### Step 5: Run on Android
-
-```bash
-# Make sure Android emulator is running or physical device connected
-# Check connected devices
-adb devices
-
-# Run app
-npm run android
-
-# App should launch in emulator/device
-```
-
-#### Step 6: Run on iOS (Mac Only)
-
-```bash
-# Run on iOS simulator
-npm run ios
-
-# iOS app should launch automatically
-```
-
-#### Step 7: Development Server
+#### Step 5: Development Server
 
 ```bash
 # In separate terminal, start Metro bundler
 npm start
 
 # This provides live reloading
-# Press 'a' for Android or 'i' for iOS
+# Use if needed
+
 ```
 
 ---
@@ -436,32 +398,16 @@ pytest --cov=backend tests/
 
 ### Mobile App Testing
 
-#### Android Testing
-
 ```bash
-# Connect Android device via USB (or use emulator)
+# Make sure your mobile device has Expo Go installed
+# Android: Google Play Store
+# iOS: App Store
 
-# Verify connection
-adb devices
+# Start the Expo development server
+cd somnia-app/SOMNIA app
+npx expo start
 
-# Run app
-npm run android
-
-# View logs
-adb logcat
-
-# Clear app data
-adb shell pm clear com.somnia
-```
-
-#### iOS Testing
-
-```bash
-# Open iOS project in Xcode
-open ios/SOMNIA.xcworkspace
-
-# Select simulator or device
-# Click Build & Run
+# Scan the QR code provided in the terminal using the Expo Go app on the phone. 
 ```
 
 ### Integration Testing
@@ -619,11 +565,8 @@ black backend/
 # Start Metro bundler
 npm start
 
-# Run on Android
-npm run android
-
-# Run on iOS
-npm run ios
+# Run on Android/iOS
+npx expo start
 
 # Run tests
 npm test
