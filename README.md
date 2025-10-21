@@ -143,14 +143,14 @@ SOMNIA/
 │       └── auth.py                            
 │
 ├── somnia-app/SOMNIA app/Somnia/           
-│   ├── .gitignore                             
-│   ├── README.md                              
+│   ├── .gitignore                              
+│   ├── README.md                               
 │   ├── app.json                             
 │   ├── package.json                          
 │   ├── tsconfig.json                         
 │   ├── babel.config.js                      
 │   ├── metro.config.js                      
-│   ├── app/                                  
+│   ├── app/                                   
 │   │   ├── (tabs)/
 │   │   │   ├── home.tsx
 │   │   │   ├── recording.tsx
@@ -171,7 +171,7 @@ SOMNIA/
     ├── mid-submission.md                      
     ├── SETUP.md                                
     ├── API.md                                
-    └── ARCHITECTURE.md                         
+    └── ARCHITECTURE.md                          
 
 ```
 
@@ -261,7 +261,7 @@ For comprehensive API documentation, see [API.md](./docs/API.md)
 - **[mid-submission.md](./docs/mid-submission.md)** - Comprehensive mid-submission report with progress updates
 - **[SETUP.md](./docs/SETUP.md)** - Detailed installation and setup instructions
 - **[API.md](./docs/API.md)** - Complete API endpoint documentation
-- **[ARCHITECHTURE.md](./docs/ARCHITECTURE.md)** - System architecture and design decisions
+- **[ARCHITECTURE.md](./docs/ARCHITECTURE.md)** - System architecture and design decisions
 
 ---
 
@@ -269,7 +269,7 @@ For comprehensive API documentation, see [API.md](./docs/API.md)
 
 ### Backend
 - **FastAPI** - Modern web framework for building APIs
-- **Python 3.8+** - Core programming language
+- **Python 3.11+** - Core programming language
 - **NumPy & SciPy** - Numerical computing
 - **Librosa** - Audio analysis
 - **TensorFlow/Keras** - Machine learning models
