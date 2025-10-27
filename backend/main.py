@@ -12,6 +12,8 @@ from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel
 import json
+from fastapi import APIRouter, Body
+from utils.wearable import summarize_wearable_samples, save_wearable_record
 
 # Import local modules
 from config import API_TITLE, API_DESCRIPTION, API_VERSION, ALLOWED_ORIGINS
