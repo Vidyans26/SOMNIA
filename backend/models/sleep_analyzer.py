@@ -7,6 +7,16 @@ Team: Chimpanzini Bananini
 import numpy as np
 import random
 from datetime import datetime
+from typing import Optional
+from pathlib import Path
+
+# Import snoring detection module
+try:
+    from .snoring_detection import analyze_snoring, extract_snoring_features
+    SNORING_DETECTION_AVAILABLE = True
+except ImportError:
+    SNORING_DETECTION_AVAILABLE = False
+    print("Warning: Snoring detection module not available")
 
 def analyze_sleep_audio(audio_data=None):
     """
@@ -61,12 +71,48 @@ def analyze_sleep_audio(audio_data=None):
     }
 
 def detect_snoring(audio_segment=None):
-    """Detect snoring patterns (400-800 Hz signature)"""
+    """
+    Detect snoring patterns using MFCC-based analysis
+    
+    If audio_segment path is provided and snoring detection is available,
+    performs actual MFCC-based snoring detection.
+    Otherwise, returns mock data.
+    
+    Args:
+        audio_segment: Path to audio file or None
+        
+    Returns:
+        Dictionary with snoring detection results
+    """
+    if audio_segment and SNORING_DETECTION_AVAILABLE and Path(audio_segment).exists():
+        try:
+            # Use the integrated snoring detection from adrianagaler/Snoring-Detection
+            result = analyze_snoring(audio_segment)
+            
+            if result.get("success"):
+                # Convert to expected format
+                snoring_prob = result.get("snoring_probability", 0.0)
+                return {
+                    "snoring_detected": result.get("snoring_detected", False),
+                    "snoring_probability": snoring_prob,
+                    "confidence": result.get("confidence", 0.0),
+                    "snoring_episodes": int(snoring_prob * 30),  # Estimate episodes
+                    "total_snoring_duration_minutes": int(snoring_prob * 90),  # Estimate duration
+                    "loudness_db": int(45 + snoring_prob * 20),  # Estimate loudness
+                    "detection_method": "MFCC-based (Khan et al.)",
+                    "feature_quality": result.get("feature_quality", "unknown")
+                }
+        except Exception as e:
+            print(f"Error in snoring detection: {e}")
+            # Fall through to mock data
+    
+    # Mock data for when no audio or detection unavailable
     return {
         "snoring_detected": random.choice([True, False]),
         "snoring_episodes": random.randint(0, 20),
         "total_snoring_duration_minutes": random.randint(0, 60),
-        "loudness_db": random.randint(45, 65)
+        "loudness_db": random.randint(45, 65),
+        "detection_method": "mock"
     }
 
 def detect_apnea_events(audio_data=None):

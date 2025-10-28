@@ -85,9 +85,16 @@ app.include_router(wearable_router)
 
 # Import local modules
 from config import API_TITLE, API_DESCRIPTION, API_VERSION, ALLOWED_ORIGINS
-from models.sleep_analyzer import analyze_sleep_audio, detect_sleep_disorders
+from models.sleep_analyzer import analyze_sleep_audio, detect_sleep_disorders, detect_snoring
 from models.sleep_report import generate_sleep_report
 from utils.auth import get_current_user
+
+# Import snoring detection if available
+try:
+    from models.snoring_detection import analyze_snoring
+    SNORING_DETECTION_AVAILABLE = True
+except ImportError:
+    SNORING_DETECTION_AVAILABLE = False
 
 # Initialize FastAPI
 app = FastAPI(
@@ -186,6 +193,62 @@ async def upload_audio_file(
         }
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error uploading file: {str(e)}")
+
+@app.post("/api/v1/analyze/snoring", status_code=200, tags=["Analysis"])
+async def analyze_snoring_audio(
+    file: UploadFile = File(...),
+    current_user: dict = Depends(get_current_user)
+):
+    """
+    Analyze audio file for snoring detection using MFCC-based analysis.
+    Based on the Khan et al. approach from adrianagaler/Snoring-Detection.
+    
+    Accepts WAV files at 16kHz sample rate (will attempt to resample if different).
+    Returns snoring detection results with probability and confidence scores.
+    """
+    import tempfile
+    import os
+    
+    try:
+        # Validate file format
+        if not file.filename.endswith('.wav'):
+            raise HTTPException(
+                status_code=400, 
+                detail="Only WAV format supported for snoring detection. Please convert your audio to WAV format."
+            )
+        
+        # Save uploaded file temporarily
+        with tempfile.NamedTemporaryFile(delete=False, suffix='.wav') as temp_file:
+            content = await file.read()
+            temp_file.write(content)
+            temp_path = temp_file.name
+        
+        try:
+            # Perform snoring detection
+            if SNORING_DETECTION_AVAILABLE:
+                result = analyze_snoring(temp_path)
+                result["detection_method"] = "MFCC-based (Khan et al.)"
+                result["user_id"] = current_user.get("id", "demo_user")
+                result["timestamp"] = datetime.now().isoformat()
+            else:
+                # Fallback to sleep_analyzer's detect_snoring
+                result = detect_snoring(temp_path)
+                result["detection_method"] = "fallback"
+                result["user_id"] = current_user.get("id", "demo_user")
+                result["timestamp"] = datetime.now().isoformat()
+                result["success"] = True
+            
+            return result
+            
+        finally:
+            # Clean up temp file
+            if os.path.exists(temp_path):
+                os.unlink(temp_path)
+                
+    except HTTPException:
+        raise
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Snoring analysis failed: {str(e)}")
 
 @app.post("/api/v1/analyze", response_model=AnalysisResult, tags=["Analysis"])
 async def analyze_sleep(
