@@ -3,18 +3,18 @@
 
 **Team Name:** Chimpanzini Bananini  
 **Project Name:** SOMNIA - Comprehensive Sleep Health Monitoring System  
-**Submission Date:** October 19, 2025  
+**Submission Date:** October 21, 2025  
 **Repository:** https://github.com/Vidyans26/SOMNIA
 
 ---
 
 ## Executive Summary
 
-SOMNIA is a breakthrough multimodal AI system that detects 8 critical sleep disorders using audio, video, wearable, and environmental sensors - all accessible through a smartphone. We're making clinical-grade sleep health monitoring affordable and accessible to every Indian family.
+SOMNIA is a multimodal AI system aimed at detecting critical sleep disorders using audio, video, wearable, and environmental sensors. In the current prototype, the backend returns realistic mock analysis and the mobile app records audio locally to demonstrate the user flow. The goal is to make clinical-grade sleep health monitoring affordable and accessible to every Indian family.
 
 **Problem:** 70 million Indians suffer from undiagnosed sleep disorders, yet 99% cannot afford ₹15,000-50,000 sleep lab tests.
 
-**Solution:** SOMNIA - An open-source multimodal AI system that democratizes clinical-grade sleep monitoring, making it accessible to all Indians regardless of income.
+**Solution:** SOMNIA - An open-source multimodal AI system vision that democratizes sleep monitoring. Current repository implements a working FastAPI backend with mock analysis and a React Native (Expo) mobile prototype; real audio/video/wearable processing is planned.
 
 **Impact:** Preventing heart attacks, strokes, and Parkinson's disease through early detection.
 
@@ -62,27 +62,29 @@ Sleep disorders are India's most underdiagnosed health crisis:
 
 SOMNIA integrates **5 modalities** for complete sleep health monitoring:
 
+> Note: The items below reflect target capabilities. The current codebase implements mock analysis and does not yet perform real audio/video/wearable processing.
+
 ```
 MODALITY 1: 🎤 AUDIO ANALYSIS
-├─ Breathing patterns & apnea detection (92% accuracy)
+├─ Breathing patterns & apnea detection (target)
 ├─ Snoring intensity & frequency
-├─ Heartbeat analysis (phonocardiogram)
-├─ Teeth grinding (400-800 Hz signature)
+├─ Heartbeat analysis (phonocardiogram) (planned)
+├─ Teeth grinding (400-800 Hz signature) (prototype function stub)
 └─ Distress sounds & alerts
 
 MODALITY 2: 📹 VIDEO ANALYSIS
-├─ Sleep position tracking (supine/side/prone)
-├─ Body movement & restlessness
-├─ REM sleep eye movement detection
-├─ Violent REM behavior (Parkinson's warning)
-└─ Infant breathing monitoring (chest rise/fall)
+├─ Sleep position tracking (supine/side/prone) (planned)
+├─ Body movement & restlessness (planned)
+├─ REM sleep eye movement detection (planned)
+├─ Violent REM behavior (Parkinson's warning) (planned)
+└─ Infant breathing monitoring (chest rise/fall) (planned)
 
 MODALITY 3: ❤️ WEARABLE INTEGRATION
-├─ Blood oxygen (SpO2) monitoring
-├─ Heart rate variability (HRV)
-├─ Irregular heart rhythm detection (AFib)
-├─ Body temperature (circadian marker)
-└─ Movement tracking (sleep/wake cycles)
+├─ Blood oxygen (SpO2) monitoring (planned)
+├─ Heart rate variability (HRV) (planned)
+├─ Irregular heart rhythm detection (AFib) (planned)
+├─ Body temperature (circadian marker) (planned)
+└─ Movement tracking (sleep/wake cycles) (planned)
 
 MODALITY 4: 🌡️ ENVIRONMENTAL SENSORS
 ├─ Room temperature (optimal: 18-21°C)
@@ -92,11 +94,11 @@ MODALITY 4: 🌡️ ENVIRONMENTAL SENSORS
 └─ Humidity (40-60% optimal)
 
 MODALITY 5: 🧠 AI INTEGRATION
-├─ LSTM Neural Network (sleep stage classifier)
-├─ Multimodal fusion (all 4 sources)
-├─ Outputs: Wake, N1, N2, N3, REM
-├─ 90% accuracy (vs 60-75% single modality)
-└─ Trained on 5,800+ clinical sleep studies
+├─ LSTM Neural Network (sleep stage classifier) (planned)
+├─ Multimodal fusion (all 4 sources) (planned)
+├─ Outputs: Wake, N1, N2, N3, REM (planned)
+├─ Accuracy targets under validation (planned)
+└─ Model training datasets TBD (planned)
 ```
 
 ### System Architecture Diagram
@@ -119,15 +121,15 @@ MODALITY 5: 🧠 AI INTEGRATION
 └─────────────────────────────────────────────────────────┘
               ↓ (Local Processing)
 ┌─────────────────────────────────────────────────────────┐
-│          EDGE PROCESSING LAYER (On-Device AI)           │
+│   EDGE PROCESSING LAYER (On-Device AI) — Planned        │
 ├─────────────────────────────────────────────────────────┤
 │                                                         │
-│  🎤 Audio Processing (TensorFlow Lite)                 │
+│  🎤 Audio Processing (TensorFlow Lite) (planned)       │
 │  ├─ FFT Analysis (Breathing, Snoring)                  │
 │  ├─ Spectrogram Analysis                               │
 │  └─ Apnea Event Detection                              │
 │                                                         │
-│  📹 Video Processing (MediaPipe)                       │
+│  📹 Video Processing (MediaPipe) (planned)             │
 │  ├─ Pose Estimation                                    │
 │  ├─ Position Classification                            │
 │  └─ Movement Detection                                 │
@@ -156,10 +158,10 @@ MODALITY 5: 🧠 AI INTEGRATION
 └─────────────────────────────────────────────────────────┘
               ↓
 ┌─────────────────────────────────────────────────────────┐
-│        DATABASE LAYER (PostgreSQL + TimescaleDB)        │
+│   DATABASE LAYER: SQLite (dev). PostgreSQL planned      │
 ├─────────────────────────────────────────────────────────┤
 │                                                         │
-│  Encrypted Storage (AES-256)                           │
+│  Encrypted Storage (AES-256) (planned)                 │
 │  ├─ Sleep Records (Time-Series)                        │
 │  ├─ Analysis Results                                   │
 │  ├─ User Profiles                                      │
@@ -168,16 +170,16 @@ MODALITY 5: 🧠 AI INTEGRATION
 └─────────────────────────────────────────────────────────┘
               ↓
 ┌─────────────────────────────────────────────────────────┐
-│          PRESENTATION LAYER (Mobile + Web)              │
+│          PRESENTATION LAYER (Mobile; Web planned)       │
 ├─────────────────────────────────────────────────────────┤
 │                                                         │
-│  📱 Mobile App (React Native)                          │
-│  ├─ Real-time Recording Interface                      │
-│  ├─ Interactive Results Dashboard                      │
-│  ├─ Trend Analysis                                     │
-│  └─ Doctor-Ready Reports                              │
+│  📱 Mobile App (React Native + Expo)                   │
+│  ├─ Recording UI (expo-av)                             │
+│  ├─ Results view (metric cards)                        │
+│  ├─ History (AsyncStorage)                             │
+│  └─ Trend/reporting (planned)                          │
 │                                                         │
-│  🌐 Web Dashboard (Next.js)                            │
+│  🌐 Web Dashboard (Next.js) — planned                  │
 │  ├─ Detailed Analytics                                 │
 │  ├─ Export/Share Reports                               │
 │  └─ Settings & Preferences                             │
@@ -193,49 +195,49 @@ MODALITY 5: 🧠 AI INTEGRATION
 - **Prevalence:** 30-40M undiagnosed Indians
 - **Risk:** 4x heart attack risk, 3x stroke risk
 - **Detection:** Audio (breathing pauses) + Video (position) + Wearable (SpO2 drops)
-- **Status:** ✅ Core algorithm implemented
+- **Status:** 🔧 Prototype (mock analysis; real audio processing planned)
 
 ### 2️⃣ Cardiac Arrhythmia (Atrial Fibrillation)
 - **Prevalence:** 5-10M undiagnosed Indians
 - **Risk:** Causes 20-30% of all strokes
 - **Detection:** Audio (heartbeat analysis) + Wearable (HRV patterns)
-- **Status:** ✅ Prototype ready
+- **Status:** ⏳ Not implemented (no HR/HRV pipeline yet)
 
 ### 3️⃣ REM Behavior Disorder (Parkinson's Early Warning)
 - **Prevalence:** 1-2M cases in India
 - **Risk:** 80% develop Parkinson's within 10-15 years
 - **Detection:** Video (violent movements) + Audio (shouting during REM)
-- **Status:** ✅ Video processing implemented
+- **Status:** ⏳ Not implemented (no video processing yet)
 
 ### 4️⃣ Insomnia & Mental Health
 - **Prevalence:** 150M with mental health issues, 80% have sleep disturbances
 - **Risk:** 3x suicide risk with chronic insomnia
 - **Detection:** Sleep pattern analysis (onset latency, efficiency, architecture)
-- **Status:** ✅ Pattern analysis ready
+- **Status:** 🔧 Basic heuristic via mock sleep_efficiency
 
 ### 5️⃣ Bruxism (Teeth Grinding)
 - **Prevalence:** 30-40M Indians
 - **Risk:** ₹50K-2L in dental damage
 - **Detection:** Audio (400-800 Hz signature detection)
-- **Status:** ✅ Audio signature implemented
+- **Status:** 🔧 Prototype function stub (not wired to pipeline)
 
 ### 6️⃣ Pregnancy Sleep Disorders
 - **Prevalence:** 15-20M pregnant women annually
 - **Risk:** 2x preeclampsia, 3x gestational diabetes
 - **Detection:** Video (supine position alerts) + Audio + Wearable
-- **Status:** ✅ Position alerting ready
+- **Status:** ⏳ Not implemented
 
 ### 7️⃣ SIDS Prevention
 - **Prevalence:** 50,000+ infant deaths annually
 - **Risk:** 100% preventable with monitoring
 - **Detection:** Video (breathing/chest movement) + Audio (distress sounds)
-- **Status:** ✅ Breathing detection prototype
+- **Status:** ⏳ Not implemented
 
 ### 8️⃣ Circadian Rhythm Disorders
 - **Prevalence:** 50M+ shift workers
 - **Risk:** WHO classified as "Group 2A carcinogen"
 - **Detection:** Body temperature + Light exposure + Sleep timing
-- **Status:** ✅ Timing analysis implemented
+- **Status:** ⏳ Not implemented
 
 ---
 
@@ -245,24 +247,29 @@ MODALITY 5: 🧠 AI INTEGRATION
 
 #### Backend API (FastAPI)
 - [x] Project structure & configuration
-- [x] 8 core API endpoints (health check, analysis, disorders, demo data)
+- [x] 7 endpoints total:
+    - `GET /` (root health)
+    - `GET /api/v1/health`
+    - `POST /api/v1/upload/audio`
+    - `POST /api/v1/analyze`
+    - `GET /api/v1/disorders`
+    - `GET /api/v1/team`
+    - `GET /api/v1/demo-analysis`
 - [x] Sleep analysis engine (mock with realistic data)
 - [x] Sleep report generation
-- [x] Disorder detection algorithms (basic)
-- [x] Authentication framework
-- [x] Error handling & logging
+- [x] Disorder detection heuristics (basic subset)
+- [x] Auth stub (demo user); no login/refresh endpoints yet
+- [x] Error handling
 - [x] CORS configuration
 
 **Code Quality:** Production-ready boilerplate, all functions documented
 
 #### Mobile App (React Native)
 - [x] Project initialization
-- [x] Navigation structure (bottom tab + stack navigator)
-- [x] Home Screen (sleep health overview)
-- [x] Recording Screen (sleep monitoring UI)
-- [x] Results Screen (data visualization with charts)
-- [x] Auth Context (state management)
-- [x] Sleep Data Context (data persistence)
+- [x] Navigation via Expo Router
+- [x] Recording UI (expo-av)
+- [x] Results view with metric cards (no charts yet)
+- [x] Local history via AsyncStorage
 - [x] Responsive UI design
 
 **Code Quality:** Fully functional, ready for testing
@@ -339,32 +346,31 @@ MODALITY 5: 🧠 AI INTEGRATION
 Language: Python 3.11
 Framework: FastAPI (modern, fast, production-ready)
 Server: Uvicorn
-Database: PostgreSQL 15 + TimescaleDB (time-series)
-Cache: Redis
+Database (dev): SQLite (default via config)
+Database (prod, planned): PostgreSQL 15 + TimescaleDB (time-series)
+Cache: (planned) Redis
 ORM: SQLAlchemy
 API Docs: OpenAPI/Swagger
 
 AI/ML:
 ├─ Audio: Librosa, NumPy, SciPy
-├─ Video: MediaPipe
-├─ ML: TensorFlow 2.14, PyTorch 2.1
-├─ Report Generation: OpenAI GPT-4 API
+├─ Video: MediaPipe (planned)
+├─ ML: TensorFlow 2.13 (present); PyTorch (planned)
+├─ Report Generation: (planned)
 └─ Data: Pandas, scikit-learn
 ```
 
 ### Mobile
 ```
-Framework: React Native 0.72
+Framework: React Native 0.81 (Expo SDK 54)
 Package Manager: npm
-Navigation: React Navigation v6
-State Management: Context API + AsyncStorage
-Charts: Chart Kit
-Icons: React Native Vector Icons
+Navigation: Expo Router
+State/Persistence: AsyncStorage
 Audio: Expo AV
-Video: React Native Camera
+Video: expo-video
 ```
 
-### Infrastructure
+### Infrastructure (Planned)
 ```
 Hosting: AWS EC2 / Railway
 Database: AWS RDS (PostgreSQL)
@@ -393,7 +399,7 @@ Wearable:   "SpO2 dropped to 87%"
             → Could be sensor error, movement, or real apnea?
 ```
 
-**Multimodal Solution:**
+**Multimodal Solution (target design):**
 ```
 Audio + Video + Wearable = Complete Picture
 
@@ -401,9 +407,9 @@ Audio + Video + Wearable = Complete Picture
 ✅ Video:    Patient sleeping on back (supine position)
 ✅ Wearable: SpO2 dropped to 87% during pauses (normal: 95-100%)
 
-DIAGNOSIS: ✓ Positional Obstructive Sleep Apnea (CONFIRMED)
-CONFIDENCE: 98% (validated by 3 independent modalities)
-ACTION: Sleep on side → Expected 60-70% improvement
+DIAGNOSIS: Example scenario (for illustration)
+CONFIDENCE: To be validated after real multimodal integration
+ACTION: Example recommendation
 ```
 
 ### Competitive Advantage
@@ -440,7 +446,7 @@ ACTION: Sleep on side → Expected 60-70% improvement
 - 12 GB video → 2 KB position data (99.99998% reduction)
 - Zero-knowledge cloud backup option (user has decryption key)
 
-**Status:** ✅ Architecture implemented, testing needed
+**Status:** 📝 Architecture documented; implementation pending
 
 ### Challenge 3: Battery Drain
 **Problem:** 8-hour audio recording drains battery
@@ -516,74 +522,19 @@ We're building an **open-source, multimodal AI platform** to democratize sleep h
 - **Global:** Open-source model for adoption worldwide
 
 **The Impact We'll Achieve:**
----
-
-## 9. Remaining Work for Final Submission
-
-### Phase 2 Timeline (Oct 21 - Nov 15, 2025)
-
-#### Week 2 (Oct 21-27)
-- [ ] Real audio processing integration
-- [ ] Actual wearable API connections
-- [ ] Database setup & testing
-- [ ] API deployment to cloud
-
-#### Week 3 (Oct 28 - Nov 3)
-- [ ] Video processing integration
-- [ ] Advanced ML model training
-- [ ] Mobile app testing on devices
-- [ ] Bug fixes & optimization
-
-#### Week 4 (Nov 4-10)
-- [ ] Clinical validation testing
-- [ ] Performance optimization
-- [ ] Security audit
-- [ ] Documentation finalization
-
-#### Week 5 (Nov 11-15)
-- [ ] Final integration testing
-- [ ] Production deployment
-- [ ] App store submission
-- [ ] Final presentation & demo
 
 ---
 
-## 10. Success Metrics
-
-### For Mid-Submission (Oct 21)
-- [x] Concept validation (8 detectable disorders)
-- [x] Multimodal architecture design
-- [x] Working API with mock data
-- [x] Mobile app UI/UX complete
-- [x] Team alignment & documentation
-
-### For Final Submission (Nov 15)
-- [ ] Real audio processing (90%+ accuracy)
-- [ ] Real video processing (85%+ accuracy)
-- [ ] Live wearable integration (3+ brands)
-- [ ] Clinical validation (100+ test cases)
-- [ ] Market-ready deployment
-- [ ] 1,000+ beta testers
-
-### Long-term Impact
-- [ ] Detect 50,000+ sleep disorders in Year 1
-- [ ] Prevent 100+ cardiac deaths through early detection
-- [ ] Support 500,000 users by Year 2
-- [ ] Partnership with 50+ hospitals/clinics
-- [ ] Integration with Ayushman Bharat scheme
-
----
-
-## 11. Team Information
+## 9. Team Information
 
 ### Chimpanzini Bananini Team
 
-| Member | Role | Contribution |
-|--------|------|--------------|
-| Vidyans26 | Lead Developer | Backend API, ML Models, Architecture |
-| Team Member 2 | Frontend Lead | Mobile App, UI/UX, React Native |
-| Team Member 3 | Research & Docs | Medical Research, Documentation |
-| Team Member 4 | Testing & QA | Testing, Validation, Deployment |
+| Name | GitHub |
+|------|--------|
+| Vidyans Sankalp | Vidyans26 |
+| Khushbu Sharma | Khusbu710 |
+| Ved Pashine | pashineved-cyber |
+| Dharmesh Sahu | dhakkann |
 
 ### Team Strengths
 - ✅ Strong Python/FastAPI backend development
@@ -594,7 +545,7 @@ We're building an **open-source, multimodal AI platform** to democratize sleep h
 
 ---
 
-## 12. Conclusion
+## 10. Conclusion
 
 SOMNIA represents a breakthrough in accessible healthcare for India. By leveraging multimodal AI and smartphone ubiquity, we're making clinical-grade sleep health monitoring available to the 99% who cannot afford hospital tests.
 
@@ -612,25 +563,4 @@ We're on track to complete the final submission with full real-time processing, 
 
 ---
 
-## Appendix: Links & Resources
 
-### Repository
-- **GitHub:** https://github.com/Vidyans26/SOMNIA
-- **Commits:** Public development history
-- **Documentation:** Complete README + inline comments
-
-### APIs & Services
-- **Backend:** Running locally on `http://localhost:8000`
-- **API Docs:** `http://localhost:8000/docs` (Swagger UI)
-- **Demo Data:** `GET /api/v1/demo-analysis`
-
-### Contact
-- **Team Email:** chimpanzini.bananini@hackathon.com
-- **GitHub:** Vidyans26
-- **Hackathon:** IIT Mandi iHub Multimodal AI
-
----
-
-**Last Updated:** October 19, 2025  
-**Status:** Mid-Submission Ready  
-**Version:** 0.1.0

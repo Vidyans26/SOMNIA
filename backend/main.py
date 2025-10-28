@@ -12,6 +12,76 @@ from datetime import datetime
 from typing import List, Optional
 from pydantic import BaseModel
 import json
+from fastapi import APIRouter, Body
+from utils.wearable import summarize_wearable_samples, save_wearable_record
+# === begin: wearable endpoints inserted directly into main.py ===
+from fastapi import APIRouter, Body, Depends, HTTPException
+from typing import Dict, Any
+from utils.wearable import summarize_wearable_samples, save_wearable_record, WEARABLE_DIR
+import json
+from pathlib import Path
+
+wearable_router = APIRouter(prefix="/api/v1", tags=["Wearable"])
+
+@wearable_router.post("/upload/wearable")
+async def upload_wearable(payload: Dict[str, Any] = Body(...), current_user: Dict = Depends(get_current_user)):
+    """
+    Accept wearable JSON payload and return computed summary and stored record id.
+    Payload example:
+    {
+      "user_id": "demo_user",
+      "device": "simulator",
+      "samples": [
+        {"ts": 1698000000, "hr": 72, "spo2": 98, "hrv": 45},
+        ...
+      ],
+      "summary": {...}  # optional precomputed summary
+    }
+    """
+    user_id = payload.get("user_id") or current_user.get("id", "demo_user")
+    samples = payload.get("samples", [])
+    if not isinstance(samples, list) or len(samples) == 0:
+        raise HTTPException(status_code=400, detail="No wearable samples provided")
+
+    # compute summary features
+    summary = summarize_wearable_samples(samples)
+    # persist (simple JSON file)
+    saved = save_wearable_record(user_id, summary, payload)
+
+    # Optionally: fuse with audio result if provided in payload (audio_prob)
+    audio_prob = payload.get("audio_prob")
+    fused = None
+    if audio_prob is not None:
+        try:
+            score = 0.6 * float(audio_prob) + 0.4 * summary.get("risk_score", 0.0)
+            level = "high" if score > 0.6 else "moderate" if score > 0.35 else "low"
+            fused = {"fusion_score": round(score, 3), "fusion_level": level}
+        except Exception:
+            fused = None
+
+    response = {"saved": saved, "summary": summary}
+    if fused:
+        response["fusion"] = fused
+    return response
+
+@wearable_router.get("/wearable/logs")
+async def wearable_logs(limit: int = 20):
+    """
+    Return recent wearable summary records (basic file-based storage)
+    """
+    files = sorted(Path(WEARABLE_DIR).glob("wearable_*.json"), reverse=True)
+    out = []
+    for f in files[:limit]:
+        try:
+            with open(f, "r", encoding="utf-8") as fh:
+                rec = json.load(fh)
+                out.append({"id": rec.get("id"), "timestamp": rec.get("timestamp"), "summary": rec.get("summary")})
+        except Exception:
+            continue
+    return {"count": len(out), "records": out}
+
+# Register the router (place once, after app defined and middleware configured)
+app.include_router(wearable_router)
 
 # Import local modules
 from config import API_TITLE, API_DESCRIPTION, API_VERSION, ALLOWED_ORIGINS
