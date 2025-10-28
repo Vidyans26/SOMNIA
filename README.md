@@ -1,5 +1,11 @@
 # 🌙 SOMNIA - Sleep Health Monitoring System
 
+[![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+![Python](https://img.shields.io/badge/python-3.10%2B-blue)
+![FastAPI](https://img.shields.io/badge/FastAPI-0.104-green)
+[![CI](https://github.com/Vidyans26/SOMNIA/actions/workflows/ci.yml/badge.svg)](https://github.com/Vidyans26/SOMNIA/actions/workflows/ci.yml)
+[![Docs](https://img.shields.io/badge/docs-API-blue)](docs/API.md)
+
 > **"Somnia knows your sleep better than you do."**
 
 SOMNIA is an advanced multimodal sleep health monitoring system that analyzes sleep patterns, detects sleep disorders, and provides personalized insights for better sleep quality.
@@ -235,6 +241,22 @@ curl -X GET http://localhost:8000/api/v1/disorders
 For comprehensive API documentation, see [API.md](./docs/API.md)
 
 Note: Snoring detection integration code (frozen TensorFlow graph inference) is included and disabled by default behind a feature flag for clean modularity. See the "Snoring Detection" section in [API.md](./docs/API.md) if you want to enable it locally.
+
+---
+
+## ⚖️ Disclaimer
+
+SOMNIA is a research prototype and not a medical device. Do not use it for diagnosis or treatment. See [docs/PRIVACY.md](./docs/PRIVACY.md) and [docs/MODEL_CARD.md](./docs/MODEL_CARD.md).
+
+---
+
+## 🎯 Why it matters
+
+- Innovation: Multimodal fusion (audio, video pose, wearable) with deployable, lightweight design (feature-flagged integrations).
+- Impact: Screens for sleep risks (apnea/snoring, low SpO2 patterns) with actionable recommendations.
+- Feasibility: Pragmatic FastAPI backend and Expo app; clear API and docs; optional TF/TFLite integration.
+- Technical Depth: Audio processing, pose feature extraction, wearable heuristics, API-first design.
+- Polish: Demo video, API examples, Model Card, Privacy notes, CI badge, submission guide.
 
 ---
 

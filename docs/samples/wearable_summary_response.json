@@ -1,0 +1,19 @@
+{
+  "saved": {
+    "id": "wearable_demo_user_20251019T080000Z.json",
+    "path": "uploads/wearable/wearable_demo_user_20251019T080000Z.json",
+    "timestamp": "20251019T080000Z"
+  },
+  "summary": {
+    "sample_count": 3,
+    "min_spo2": 88.0,
+    "avg_spo2": 93.3,
+    "min_hr": 68.0,
+    "avg_hr": 72.0,
+    "hr_std": 3.27,
+    "avg_hrv": 42.33,
+    "spo2_drops": 1,
+    "risk_score": 0.3,
+    "risk_level": "moderate"
+  }
+}

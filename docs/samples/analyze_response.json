@@ -1,0 +1,20 @@
+{
+  "sleep_efficiency": 0.86,
+  "total_sleep_time": 7.2,
+  "sleep_stages": {
+    "wake": 36,
+    "light": 224,
+    "deep": 98,
+    "rem": 74
+  },
+  "apnea_events": 8,
+  "risk_assessment": "moderate",
+  "recommendations": [
+    "Try sleeping on your side to reduce apnea events",
+    "Keep room temperature between 18-21°C for optimal sleep",
+    "Reduce screen time 1 hour before bed to improve REM sleep"
+  ],
+  "disorders_detected": [
+    "mild_positional_apnea"
+  ]
+}

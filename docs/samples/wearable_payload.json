@@ -1,0 +1,9 @@
+{
+  "user_id": "demo_user",
+  "device": "simulator",
+  "samples": [
+    {"ts": 1698000000, "hr": 72, "spo2": 98, "hrv": 45},
+    {"ts": 1698000060, "hr": 68, "spo2": 94, "hrv": 42},
+    {"ts": 1698000120, "hr": 76, "spo2": 88, "hrv": 40}
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "info": {
+    "name": "SOMNIA API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Health Root",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:8000/"
+      }
+    },
+    {
+      "name": "Health Detailed",
+      "request": {
+        "method": "GET",
+        "url": "http://localhost:8000/api/v1/health"
+      }
+    },
+    {
+      "name": "Analyze (mock)",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "url": "http://localhost:8000/api/v1/analyze",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"duration_hours\": 7.5,\n  \"user_id\": \"demo_user\",\n  \"recording_date\": \"2025-10-19T08:00:00Z\"\n}"
+        }
+      }
+    },
+    {
+      "name": "Wearable Upload",
+      "request": {
+        "method": "POST",
+        "header": [
+          {"key": "Content-Type", "value": "application/json"}
+        ],
+        "url": "http://localhost:8000/api/v1/upload/wearable",
+        "body": {
+          "mode": "raw",
+          "raw": "{\n  \"user_id\": \"demo_user\",\n  \"device\": \"simulator\",\n  \"samples\": [\n    {\"ts\": 1698000000, \"hr\": 72, \"spo2\": 98, \"hrv\": 45},\n    {\"ts\": 1698000060, \"hr\": 68, \"spo2\": 94, \"hrv\": 42},\n    {\"ts\": 1698000120, \"hr\": 76, \"spo2\": 88, \"hrv\": 40}\n  ]\n}"
+        }
+      }
+    }
+  ]
+}
