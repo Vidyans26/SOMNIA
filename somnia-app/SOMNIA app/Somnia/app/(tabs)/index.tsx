@@ -1,102 +1,81 @@
-import React, { useState, useEffect } from 'react';
-import { 
-  StyleSheet, 
-  Text, 
-  View, 
+import React, { useState, useEffect, useRef } from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
   TouchableOpacity,
   ScrollView,
   Alert,
-  Dimensions,
-  Animated
+  Modal,
 } from 'react-native';
-import { Audio } from 'expo-av';
-import * as FileSystem from 'expo-file-system';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CameraView } from 'expo-camera';
 import * as Haptics from 'expo-haptics';
-import { LinearGradient } from 'expo-linear-gradient';
-import { BlurView } from 'expo-blur';
 
 // Types
-interface AnalysisResult {
-  id?: string;
-  duration: number;
-  snoringEvents: number;
-  snoringMinutes: string;
-  snoringPercentage: string;
-  apneaEvents: number;
-  ahi: string;
-  severity: string;
-  longestPause: string;
-  timestamp: string;
-}
+import { AnalysisResult, MonitoringSettings } from '../../types';
 
-// Mock data generator
-const generateMockResults = (duration: number): AnalysisResult => {
-  const hours = duration / 3600;
-  const snoringEvents = Math.floor(Math.random() * 30) + 20;
-  const apneaEvents = Math.floor(Math.random() * 10) + 5;
-  const ahi = hours > 0 ? apneaEvents / hours : 0;
-  
-  let severity = "Normal";
-  if (ahi >= 30) severity = "Severe Sleep Apnea";
-  else if (ahi >= 15) severity = "Moderate Sleep Apnea";
-  else if (ahi >= 5) severity = "Mild Sleep Apnea";
+// Services
+import { audioService } from '../../services/audioService';
+import { videoService } from '../../services/videoService';
+import { wearableService, WearableDevice } from '../../services/wearableService';
+import { storageService } from '../../services/storageService';
 
-  return {
-    duration: hours,
-    snoringEvents,
-    snoringMinutes: (snoringEvents * 0.5).toFixed(1),
-    snoringPercentage: duration > 0 ? ((snoringEvents * 30) / duration * 100).toFixed(1) : "0",
-    apneaEvents,
-    ahi: ahi.toFixed(1),
-    severity,
-    longestPause: (Math.random() * 20 + 10).toFixed(1),
-    timestamp: new Date().toLocaleString(),
-  };
-};
+// Utils
+import { generateMockResults } from '../../utils/mockData';
+import { formatTime, getSeverityColor } from '../../utils/formatters';
+
+// Components
+import { MetricCard } from '../../components/MetricCard';
+import { PositionChart } from '../../components/PositionChart';
+import { HeartRateChart } from '../../components/HeartRateChart';
+import { SettingsPanel } from '../../components/SettingsPanel';
+import { CameraPreview } from '../../components/CameraPreview';
+
+// Constants
+import { COLORS, SIZES, SPACING } from '../../constants/theme';
 
 export default function TabOneScreen() {
-  const [recording, setRecording] = useState<Audio.Recording | null>(null);
+  // ===========================================
+  // STATE MANAGEMENT
+  // ===========================================
+  
+  // Recording state
+  const [recording, setRecording] = useState<any>(null);
   const [isRecording, setIsRecording] = useState(false);
   const [recordingDuration, setRecordingDuration] = useState(0);
+  
+  // Analysis state
   const [analysisResult, setAnalysisResult] = useState<AnalysisResult | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [analysisProgress, setAnalysisProgress] = useState(0);
+  
+  // UI state
   const [history, setHistory] = useState<AnalysisResult[]>([]);
   const [showHistory, setShowHistory] = useState(false);
+  const [showSettings, setShowSettings] = useState(false);
+  const [showWearableModal, setShowWearableModal] = useState(false);
   
-  // Animation values
-  const pulseAnim = useState(new Animated.Value(1))[0];
-  const fadeAnim = useState(new Animated.Value(0))[0];
+  // Settings state
+  const [settings, setSettings] = useState<MonitoringSettings>({
+    audioEnabled: true,
+    videoEnabled: false,
+    wearableEnabled: false,
+    wearableConnected: false,
+  });
+  
+  // Permissions
+  const [cameraPermission, setCameraPermission] = useState<boolean>(false);
+  
+  // Wearable
+  const [availableDevices, setAvailableDevices] = useState<WearableDevice[]>([]);
+  const [isScanning, setIsScanning] = useState(false);
+  
+  // Refs
+  const cameraRef = useRef<CameraView>(null);
 
-  // Pulse animation effect
-  useEffect(() => {
-    if (isRecording) {
-      Animated.loop(
-        Animated.sequence([
-          Animated.timing(pulseAnim, {
-            toValue: 1.2,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-          Animated.timing(pulseAnim, {
-            toValue: 1,
-            duration: 1000,
-            useNativeDriver: true,
-          }),
-        ])
-      ).start();
-    }
-  }, [isRecording]);
-
-  // Fade in animation
-  useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 800,
-      useNativeDriver: true,
-    }).start();
-  }, []);
+  // ===========================================
+  // EFFECTS
+  // ===========================================
 
   // Timer effect
   useEffect(() => {
@@ -114,68 +93,56 @@ export default function TabOneScreen() {
     };
   }, [isRecording]);
 
-  // Load history on mount
+  // Load data on mount
   useEffect(() => {
-    loadHistory();
+    loadInitialData();
   }, []);
 
-  const formatTime = (seconds: number): string => {
-    const hrs = Math.floor(seconds / 3600);
-    const mins = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+  // ===========================================
+  // DATA LOADING
+  // ===========================================
+
+  const loadInitialData = async () => {
+    const savedHistory = await storageService.getHistory();
+    setHistory(savedHistory);
+    
+    const savedSettings = await storageService.getSettings();
+    if (savedSettings) {
+      setSettings(savedSettings);
+    }
+    
+    const hasCamera = await videoService.requestPermission();
+    setCameraPermission(hasCamera);
   };
 
-  const loadHistory = async () => {
-    try {
-      const data = await AsyncStorage.getItem('sleep_history');
-      if (data) {
-        setHistory(JSON.parse(data));
-      }
-    } catch (error) {
-      console.error('Failed to load history:', error);
-    }
-  };
-
-  const saveResult = async (result: AnalysisResult) => {
-    try {
-      const newResult: AnalysisResult = {
-        id: Date.now().toString(),
-        ...result,
-      };
-      
-      const updatedHistory = [newResult, ...history].slice(0, 30);
-      await AsyncStorage.setItem('sleep_history', JSON.stringify(updatedHistory));
-      setHistory(updatedHistory);
-    } catch (error) {
-      console.error('Failed to save result:', error);
-    }
-  };
+  // ===========================================
+  // RECORDING FUNCTIONS
+  // ===========================================
 
   const startRecording = async () => {
     try {
       Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
       
-      const permission = await Audio.requestPermissionsAsync();
-      
-      if (permission.status !== 'granted') {
-        Alert.alert(
-          'Permission Required',
-          'Please allow microphone access to record sleep audio'
-        );
+      // Start audio
+      const audioRec = await audioService.startRecording();
+      if (!audioRec) {
+        Alert.alert('Error', 'Failed to start audio recording');
         return;
       }
+      setRecording(audioRec);
 
-      await Audio.setAudioModeAsync({
-        allowsRecordingIOS: true,
-        playsInSilentModeIOS: true,
-      });
+      // Start video if enabled
+      if (settings.videoEnabled) {
+        if (!cameraPermission) {
+          Alert.alert(
+            'Camera Permission Required',
+            'Please enable camera access in settings'
+          );
+          return;
+        }
+        await videoService.startRecording(cameraRef);
+      }
 
-      const { recording } = await Audio.Recording.createAsync(
-        Audio.RecordingOptionsPresets.HIGH_QUALITY
-      );
-
-      setRecording(recording);
       setIsRecording(true);
       setAnalysisResult(null);
       
@@ -193,33 +160,57 @@ export default function TabOneScreen() {
     try {
       setIsRecording(false);
       
-      await recording.stopAndUnloadAsync();
-      const uri = recording.getURI();
-      
+      // Stop audio
+      const audioUri = await audioService.stopRecording(recording);
       setRecording(null);
       
+      // Stop video if enabled
+      let videoUri = null;
+      if (settings.videoEnabled) {
+        videoUri = await videoService.stopRecording(cameraRef);
+      }
+      
+      console.log('Audio URI:', audioUri);
+      if (videoUri) console.log('Video URI:', videoUri);
+      
+      // Show analyzing state
       setIsAnalyzing(true);
       setAnalysisProgress(0);
       
+      // Animate progress
       const progressInterval = setInterval(() => {
         setAnalysisProgress(prev => {
           if (prev >= 100) {
             clearInterval(progressInterval);
             return 100;
           }
-          return prev + 10;
+          return prev + 8;
         });
-      }, 200);
+      }, 250);
+      
+      // Simulate analysis (or call real ML API here)
+      const analysisTime = settings.videoEnabled || settings.wearableEnabled ? 3500 : 2000;
       
       setTimeout(async () => {
-        const results = generateMockResults(recordingDuration);
+        // TODO: Replace with real ML API call
+        const results = generateMockResults(
+          recordingDuration,
+          settings.videoEnabled,
+          settings.wearableEnabled
+        );
+        
         setAnalysisResult(results);
-        await saveResult(results);
+        await storageService.saveResult(results);
+        
+        // Reload history
+        const updatedHistory = await storageService.getHistory();
+        setHistory(updatedHistory);
+        
         setIsAnalyzing(false);
         clearInterval(progressInterval);
         
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      }, 2000);
+      }, analysisTime);
       
     } catch (err) {
       console.error('Failed to stop recording', err);
@@ -228,895 +219,1188 @@ export default function TabOneScreen() {
     }
   };
 
-  const handlePress = () => {
-    if (isRecording) {
-      stopRecording();
-    } else {
-      startRecording();
+  // ===========================================
+  // SETTINGS FUNCTIONS
+  // ===========================================
+
+  const handleVideoToggle = async (value: boolean) => {
+    if (value && !cameraPermission) {
+      const granted = await videoService.requestPermission();
+      setCameraPermission(granted);
+      if (!granted) {
+        Alert.alert(
+          'Permission Denied',
+          'Camera access is required for video monitoring'
+        );
+        return;
+      }
+    }
+    
+    const newSettings = { ...settings, videoEnabled: value };
+    setSettings(newSettings);
+    await storageService.saveSettings(newSettings);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  };
+
+  const handleWearableToggle = async (value: boolean) => {
+    const newSettings = { ...settings, wearableEnabled: value };
+    setSettings(newSettings);
+    await storageService.saveSettings(newSettings);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    
+    if (value && !settings.wearableConnected) {
+      setShowWearableModal(true);
     }
   };
 
-  const getSeverityColors = (severity: string) => {
-    if (severity.includes('Normal')) return ['#10b981', '#14b8a6'];
-    if (severity.includes('Mild')) return ['#f59e0b', '#f97316'];
-    if (severity.includes('Moderate')) return ['#f97316', '#ef4444'];
-    return ['#dc2626', '#991b1b'];
+  const handleConnectWearable = () => {
+    setShowWearableModal(true);
   };
 
-  const GradientCard = ({ children, colors }: { children: React.ReactNode, colors: string[] }) => (
-    <LinearGradient
-      colors={colors}
-      start={{ x: 0, y: 0 }}
-      end={{ x: 1, y: 1 }}
-      style={styles.gradientCard}
-    >
-      {children}
-    </LinearGradient>
-  );
+  const scanForDevices = async () => {
+    setIsScanning(true);
+    const devices = await wearableService.scanForDevices();
+    setAvailableDevices(devices);
+    setIsScanning(false);
+  };
+
+  const connectToDevice = async (device: WearableDevice) => {
+    const connected = await wearableService.connectDevice(device.id);
+    if (connected) {
+      const newSettings = {
+        ...settings,
+        wearableConnected: true,
+        wearableDeviceName: device.name,
+      };
+      setSettings(newSettings);
+      await storageService.saveSettings(newSettings);
+      setShowWearableModal(false);
+      
+      Alert.alert('Success', `Connected to ${device.name}`);
+    } else {
+      Alert.alert('Error', 'Failed to connect to device');
+    }
+  };
+
+  // ===========================================
+  // RENDER FUNCTIONS
+  // ===========================================
+
+  const renderStatusContainer = () => {
+    if (isAnalyzing) {
+      return (
+        <View style={styles.statusContainer}>
+          <Text style={styles.analyzingText}>
+            🧠 {getAnalyzingText()}
+          </Text>
+          <View style={styles.progressBarContainer}>
+            <View style={[styles.progressBar, { width: `${analysisProgress}%` }]} />
+          </View>
+          <Text style={styles.progressText}>{analysisProgress}%</Text>
+          <Text style={styles.hint}>
+            {settings.videoEnabled || settings.wearableEnabled
+              ? 'Processing multimodal data...'
+              : 'Processing audio patterns...'}
+          </Text>
+        </View>
+      );
+    }
+
+    if (isRecording) {
+      return (
+        <View style={styles.statusContainer}>
+          <View style={styles.recordingDot} />
+          <Text style={styles.statusText}>Recording in Progress</Text>
+          <Text style={styles.timer}>{formatTime(recordingDuration)}</Text>
+          <Text style={styles.hint}>{getRecordingModeText()}</Text>
+        </View>
+      );
+    }
+
+    if (analysisResult) {
+      return (
+        <View style={styles.analysisCompleteContainer}>
+          <Text style={styles.statusText}>✅ Analysis Complete</Text>
+          <Text style={styles.hint}>Scroll down to view results</Text>
+        </View>
+      );
+    }
+
+    return (
+      <View style={styles.statusContainer}>
+        <Text style={styles.statusText}>Ready to Monitor Sleep</Text>
+        <Text style={styles.instruction}>
+          📱 Place phone on nightstand{'\n'}
+          🔌 Keep phone plugged in{'\n'}
+          🔇 Enable Do Not Disturb{'\n'}
+          {settings.videoEnabled && '📹 Camera will face the bed\n'}
+          😴 Sleep well!
+        </Text>
+      </View>
+    );
+  };
+
+  const getAnalyzingText = (): string => {
+    const modes = [];
+    if (settings.audioEnabled) modes.push('Audio');
+    if (settings.videoEnabled) modes.push('Video');
+    if (settings.wearableEnabled) modes.push('Wearable');
+    return `Analyzing ${modes.join(' + ')}...`;
+  };
+
+  const getRecordingModeText = (): string => {
+    const modes = [];
+    if (settings.audioEnabled) modes.push('🎤 Audio');
+    if (settings.videoEnabled) modes.push('📹 Video');
+    if (settings.wearableEnabled) modes.push('⌚ Wearable');
+    return modes.join(' + ');
+  };
+
+  const renderMultimodalBadge = () => {
+    const activeModes = [
+      settings.audioEnabled && 'Audio',
+      settings.videoEnabled && 'Video',
+      settings.wearableEnabled && 'Wearable',
+    ].filter(Boolean);
+
+    if (activeModes.length <= 1) return null;
+
+    return (
+      <View style={styles.multimodalBadge}>
+        <Text style={styles.multimodalText}>
+          🎯 Multimodal Analysis ({activeModes.join(' + ')})
+        </Text>
+      </View>
+    );
+  };
+
+  // ===========================================
+  // MAIN RENDER
+  // ===========================================
 
   return (
     <View style={styles.container}>
-      {/* Animated Background */}
-      <View style={styles.backgroundGradient}>
-        <LinearGradient
-          colors={['#0f172a', '#1e3a8a', '#0f172a']}
-          style={StyleSheet.absoluteFill}
-        />
-      </View>
-
       {/* Header */}
-      <LinearGradient
-        colors={['rgba(30, 58, 138, 0.3)', 'rgba(15, 23, 42, 0.3)']}
-        style={styles.header}
-      >
+      <View style={styles.header}>
         <View style={styles.headerContent}>
-          <View style={styles.logoContainer}>
-            <View style={styles.moonIcon}>
-              <Text style={styles.moonEmoji}>🌙</Text>
-              <View style={styles.pingDot} />
-            </View>
-            <View>
-              <Text style={styles.logo}>SOMNIA</Text>
-              <Text style={styles.subtitle}>AI-Powered Sleep Analysis</Text>
-            </View>
-          </View>
-          
-          {!showHistory && history.length > 0 && !analysisResult && !isRecording && (
-            <TouchableOpacity 
-              style={styles.historyHeaderButton}
-              onPress={() => {
-                setShowHistory(true);
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              }}
-            >
-              <Text style={styles.historyHeaderText}>📊 {history.length}</Text>
-            </TouchableOpacity>
-          )}
+          <Text style={styles.logo}>🌙 SOMNIA</Text>
+          <TouchableOpacity 
+            style={styles.settingsButton}
+            onPress={() => {
+              setShowSettings(!showSettings);
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            }}
+          >
+            <Text style={styles.settingsIcon}>⚙️</Text>
+          </TouchableOpacity>
         </View>
-      </LinearGradient>
+        <Text style={styles.subtitle}>AI-Powered Sleep Analysis</Text>
+      </View>
+    
+
+      {/* Settings Panel */}
+      {showSettings && (
+        <SettingsPanel
+          settings={settings}
+          onVideoToggle={handleVideoToggle}
+          onWearableToggle={handleWearableToggle}
+          onConnectWearable={handleConnectWearable}
+          onRequestVideoPermission={async () => {
+            const granted = await videoService.requestPermission();
+            setCameraPermission(granted);
+          }}
+          cameraPermission={cameraPermission}
+        />
+      )}
+
+      {/* Camera Preview */}
+      {settings.videoEnabled && cameraPermission && (
+        <CameraPreview 
+          cameraRef={cameraRef} 
+          isRecording={isRecording} 
+          style={!isRecording ? { width: 0, height: 0, opacity: 0 } : undefined}
+        />
+      )}
 
       {/* Main Content */}
       {showHistory ? (
-        /* History View */
-        <ScrollView style={styles.historyContainer}>
-          <View style={styles.historyHeader}>
-            <Text style={styles.historyTitle}>Sleep History</Text>
-            <TouchableOpacity 
-              style={styles.closeButton}
-              onPress={() => {
-                setShowHistory(false);
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              }}
-            >
-              <Text style={styles.closeButtonText}>✕</Text>
-            </TouchableOpacity>
-          </View>
-          
-          {history.length === 0 ? (
-            <Text style={styles.emptyText}>No previous recordings yet</Text>
-          ) : (
-            history.map((item) => (
-              <TouchableOpacity 
-                key={item.id}
-                style={styles.historyItemCard}
-                onPress={() => {
-                  setAnalysisResult(item);
-                  setShowHistory(false);
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                }}
-              >
-                <LinearGradient
-                  colors={['rgba(59, 130, 246, 0.1)', 'rgba(37, 99, 235, 0.05)']}
-                  style={styles.historyItemGradient}
-                >
-                  <Text style={styles.historyDate}>🕐 {item.timestamp}</Text>
-                  <View style={styles.historyMetrics}>
-                    <View style={styles.historyMetric}>
-                      <Text style={styles.historyMetricLabel}>Duration</Text>
-                      <Text style={styles.historyMetricValue}>{item.duration.toFixed(1)}h</Text>
-                    </View>
-                    <View style={styles.historyMetric}>
-                      <Text style={styles.historyMetricLabel}>AHI Score</Text>
-                      <Text style={styles.historyMetricValue}>{item.ahi}</Text>
-                    </View>
-                  </View>
-                  <View style={[styles.severityBadge, {
-                    backgroundColor: item.severity.includes('Normal') ? 'rgba(16, 185, 129, 0.2)' :
-                                   item.severity.includes('Mild') ? 'rgba(245, 158, 11, 0.2)' :
-                                   'rgba(239, 68, 68, 0.2)'
-                  }]}>
-                    <Text style={[styles.severityBadgeText, {
-                      color: item.severity.includes('Normal') ? '#10b981' :
-                             item.severity.includes('Mild') ? '#f59e0b' : '#ef4444'
-                    }]}>{item.severity}</Text>
-                  </View>
-                  <Text style={styles.arrowRight}>→</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-            ))
-          )}
-        </ScrollView>
+        <HistoryView
+          history={history}
+          onSelectResult={(result) => {
+            setAnalysisResult(result);
+            setShowHistory(false);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          }}
+          onClose={() => {
+            setShowHistory(false);
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          }}
+        />
       ) : (
         <>
           {/* Status Container */}
-          <Animated.View style={[styles.statusContainer, { opacity: fadeAnim }]}>
-            {isAnalyzing ? (
-              <View style={styles.centerContent}>
-                <View style={styles.analyzingIcon}>
-                  <Text style={styles.analyzingEmoji}>🧠</Text>
-                </View>
-                <Text style={styles.analyzingTitle}>Analyzing Sleep Data</Text>
-                <Text style={styles.analyzingSubtitle}>Processing audio patterns with AI</Text>
-                
-                <View style={styles.progressContainer}>
-                  <View style={styles.progressBar}>
-                    <LinearGradient
-                      colors={['#3b82f6', '#06b6d4']}
-                      start={{ x: 0, y: 0 }}
-                      end={{ x: 1, y: 0 }}
-                      style={[styles.progressFill, { width: `${analysisProgress}%` }]}
-                    />
-                  </View>
-                  <Text style={styles.progressText}>{analysisProgress}%</Text>
-                </View>
-              </View>
-            ) : isRecording ? (
-              <View style={styles.centerContent}>
-                <Animated.View style={[styles.recordingPulse, { transform: [{ scale: pulseAnim }] }]}>
-                  <LinearGradient
-                    colors={['#ef4444', '#dc2626']}
-                    style={styles.recordingDot}
-                  >
-                    <Text style={styles.recordingIcon}>⏺</Text>
-                  </LinearGradient>
-                </Animated.View>
-                <Text style={styles.recordingTitle}>Recording in Progress</Text>
-                <Text style={styles.timerText}>{formatTime(recordingDuration)}</Text>
-                <Text style={styles.recordingHint}>💨 Monitoring breathing patterns</Text>
-              </View>
-            ) : analysisResult ? (
-              <View style={styles.centerContent}>
-                <View style={styles.completeIcon}>
-                  <Text style={styles.completeEmoji}>⚡</Text>
-                </View>
-                <Text style={styles.completeTitle}>Analysis Complete</Text>
-                <Text style={styles.completeSubtitle}>Scroll down to view results</Text>
-              </View>
-            ) : (
-              <View style={styles.centerContent}>
-                <View style={styles.readyIcon}>
-                  <Text style={styles.readyEmoji}>🌙</Text>
-                </View>
-                <Text style={styles.readyTitle}>Ready to Monitor</Text>
-                <Text style={styles.readySubtitle}>
-                  Place your phone on the nightstand{'\n'}and start monitoring your sleep
-                </Text>
-                
-                <View style={styles.instructionsGrid}>
-                  {[
-                    { icon: '📱', text: 'On nightstand' },
-                    { icon: '🔌', text: 'Keep plugged' },
-                    { icon: '🔇', text: 'Enable DND' },
-                    { icon: '😴', text: 'Sleep well!' }
-                  ].map((item, idx) => (
-                    <View key={idx} style={styles.instructionCard}>
-                      <Text style={styles.instructionIcon}>{item.icon}</Text>
-                      <Text style={styles.instructionText}>{item.text}</Text>
-                    </View>
-                  ))}
-                </View>
-              </View>
-            )}
-          </Animated.View>
+          {renderStatusContainer()}
 
-          {/* Action Button */}
+          {/* Action Buttons */}
           {!isAnalyzing && !analysisResult && (
             <View style={styles.buttonContainer}>
-              <TouchableOpacity 
-                style={styles.mainButton}
-                onPress={handlePress}
+              <TouchableOpacity
+                style={[styles.button, isRecording ? styles.stopButton : styles.startButton]}
+                onPress={isRecording ? stopRecording : startRecording}
                 activeOpacity={0.8}
               >
-                <LinearGradient
-                  colors={isRecording ? ['#ef4444', '#dc2626'] : ['#3b82f6', '#06b6d4']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={styles.mainButtonGradient}
-                >
-                  <Text style={styles.mainButtonText}>
-                    {isRecording ? '⏹ Stop & Analyze' : '▶️ Start Monitoring'}
-                  </Text>
-                </LinearGradient>
+                <Text style={styles.buttonText}>
+                  {isRecording ? '⏹️ Stop & Analyze' : '▶️ Start Monitoring'}
+                </Text>
               </TouchableOpacity>
+
+              {history.length > 0 && !isRecording && (
+                <TouchableOpacity
+                  style={styles.historyButton}
+                  onPress={() => {
+                    setShowHistory(true);
+                    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  }}
+                  activeOpacity={0.8}
+                >
+                  <Text style={styles.historyButtonText}>
+                    📊 View History ({history.length})
+                  </Text>
+                </TouchableOpacity>
+              )}
             </View>
           )}
 
           {/* Results Section */}
           {analysisResult && !isAnalyzing && (
-            <ScrollView 
-              style={styles.resultsContainer}
-              showsVerticalScrollIndicator={false}
-            >
-              <Text style={styles.resultsTitle}>📊 Sleep Analysis Results</Text>
-              
-              {/* Key Metrics */}
-              <View style={styles.metricsGrid}>
-                <GradientCard colors={['rgba(59, 130, 246, 0.2)', 'rgba(6, 182, 212, 0.1)']}>
-                  <Text style={styles.metricIcon}>⏱️</Text>
-                  <Text style={styles.metricLabel}>Duration</Text>
-                  <Text style={styles.metricValue}>{analysisResult.duration.toFixed(1)}<Text style={styles.metricUnit}>h</Text></Text>
-                  <Text style={styles.metricSubtext}>{analysisResult.timestamp}</Text>
-                </GradientCard>
-
-                <GradientCard colors={['rgba(168, 85, 247, 0.2)', 'rgba(236, 72, 153, 0.1)']}>
-                  <Text style={styles.metricIcon}>🔊</Text>
-                  <Text style={styles.metricLabel}>Snoring</Text>
-                  <Text style={styles.metricValue}>{analysisResult.snoringEvents}</Text>
-                  <Text style={styles.metricSubtext}>{analysisResult.snoringMinutes}min ({analysisResult.snoringPercentage}%)</Text>
-                </GradientCard>
-
-                <GradientCard colors={['rgba(249, 115, 22, 0.2)', 'rgba(239, 68, 68, 0.1)']}>
-                  <Text style={styles.metricIcon}>💤</Text>
-                  <Text style={styles.metricLabel}>Apnea Events</Text>
-                  <Text style={styles.metricValue}>{analysisResult.apneaEvents}</Text>
-                  <Text style={styles.metricSubtext}>Longest: {analysisResult.longestPause}s</Text>
-                </GradientCard>
-              </View>
-
-              {/* AHI Score Card */}
-              <LinearGradient
-                colors={getSeverityColors(analysisResult.severity).map(c => c + '20')}
-                style={styles.ahiCard}
-              >
-                <View style={styles.ahiHeader}>
-                  <View>
-                    <Text style={styles.ahiLabel}>📈 AHI Score</Text>
-                    <Text style={styles.ahiValue}>{analysisResult.ahi}</Text>
-                    <Text style={styles.ahiUnit}>events per hour</Text>
-                  </View>
-                  <View style={[styles.severityPill, {
-                    backgroundColor: getSeverityColors(analysisResult.severity)[0]
-                  }]}>
-                    <Text style={styles.severityPillText}>{analysisResult.severity}</Text>
-                  </View>
-                </View>
-
-                <View style={styles.recommendationCard}>
-                  {parseFloat(analysisResult.ahi) >= 5 ? (
-                    <Text style={styles.recommendationText}>
-                      💡 <Text style={styles.recommendationBold}>Recommendation:</Text> Consider consulting a sleep specialist for proper diagnosis and treatment.
-                    </Text>
-                  ) : (
-                    <Text style={[styles.recommendationText, { color: '#10b981' }]}>
-                      ✅ <Text style={styles.recommendationBold}>Great News:</Text> Your breathing patterns appear normal. Keep up healthy sleep habits!
-                    </Text>
-                  )}
-                </View>
-              </LinearGradient>
-
-              {/* Info Card */}
-              <View style={styles.infoCard}>
-                <Text style={styles.infoTitle}>🧠 Understanding Your Results</Text>
-                <Text style={styles.infoText}>
-                  <Text style={styles.infoBold}>AHI (Apnea-Hypopnea Index):</Text> Number of breathing pauses per hour
-                </Text>
-                <View style={styles.infoGrid}>
-                  <View style={[styles.infoItem, { backgroundColor: 'rgba(16, 185, 129, 0.1)' }]}>
-                    <Text style={[styles.infoItemTitle, { color: '#10b981' }]}>Normal</Text>
-                    <Text style={styles.infoItemText}>AHI {'<'} 5</Text>
-                  </View>
-                  <View style={[styles.infoItem, { backgroundColor: 'rgba(245, 158, 11, 0.1)' }]}>
-                    <Text style={[styles.infoItemTitle, { color: '#f59e0b' }]}>Mild</Text>
-                    <Text style={styles.infoItemText}>AHI 5-15</Text>
-                  </View>
-                  <View style={[styles.infoItem, { backgroundColor: 'rgba(249, 115, 22, 0.1)' }]}>
-                    <Text style={[styles.infoItemTitle, { color: '#f97316' }]}>Moderate</Text>
-                    <Text style={styles.infoItemText}>AHI 15-30</Text>
-                  </View>
-                  <View style={[styles.infoItem, { backgroundColor: 'rgba(239, 68, 68, 0.1)' }]}>
-                    <Text style={[styles.infoItemTitle, { color: '#ef4444' }]}>Severe</Text>
-                    <Text style={styles.infoItemText}>AHI {'>'} 30</Text>
-                  </View>
-                </View>
-              </View>
-
-              {/* Action Buttons */}
-              <TouchableOpacity 
-                style={styles.actionButton}
-                onPress={() => {
-                  setAnalysisResult(null);
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-                }}
-              >
-                <LinearGradient
-                  colors={['#3b82f6', '#06b6d4']}
-                  start={{ x: 0, y: 0 }}
-                  end={{ x: 1, y: 0 }}
-                  style={styles.actionButtonGradient}
-                >
-                  <Text style={styles.actionButtonText}>🔄 New Recording</Text>
-                </LinearGradient>
-              </TouchableOpacity>
-
-              <TouchableOpacity 
-                style={styles.secondaryButton}
-                onPress={() => {
-                  setShowHistory(true);
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                }}
-              >
-                <Text style={styles.secondaryButtonText}>📊 View All History</Text>
-              </TouchableOpacity>
-
-              <View style={styles.disclaimer}>
-                <Text style={styles.disclaimerText}>
-                  ⚠️ <Text style={styles.disclaimerBold}>Disclaimer:</Text> This is a screening tool, not a medical diagnosis. Always consult a healthcare professional.
-                </Text>
-              </View>
-            </ScrollView>
+            <ResultsView
+              result={analysisResult}
+              onNewRecording={() => {
+                setAnalysisResult(null);
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+              }}
+              onViewHistory={() => {
+                setShowHistory(true);
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              }}
+            />
           )}
         </>
       )}
+
+      {/* Wearable Connection Modal */}
+      <WearableModal
+        visible={showWearableModal}
+        devices={availableDevices}
+        isScanning={isScanning}
+        onScan={scanForDevices}
+        onConnect={connectToDevice}
+        onClose={() => setShowWearableModal(false)}
+      />
     </View>
   );
 }
 
+// ===========================================
+// SUB-COMPONENTS
+// ===========================================
+
+const HistoryView: React.FC<{
+  history: AnalysisResult[];
+  onSelectResult: (result: AnalysisResult) => void;
+  onClose: () => void;
+}> = ({ history, onSelectResult, onClose }) => (
+  <ScrollView style={styles.historyContainer}>
+    <Text style={styles.historyTitle}>Previous Sleep Sessions</Text>
+
+    {history.length === 0 ? (
+      <Text style={styles.emptyText}>No previous recordings yet</Text>
+    ) : (
+      history.map((item) => (
+        <TouchableOpacity
+          key={item.id}
+          style={styles.historyItem}
+          onPress={() => onSelectResult(item)}
+        >
+          <View style={styles.historyHeader}>
+            <Text style={styles.historyDate}>{item.timestamp}</Text>
+            <View style={styles.historyBadges}>
+              {item.videoEnabled && (
+                <View style={[styles.modeBadge, { backgroundColor: COLORS.primary }]}>
+                  <Text style={styles.modeBadgeText}>📹</Text>
+                </View>
+              )}
+              {item.wearableEnabled && (
+                <View style={[styles.modeBadge, { backgroundColor: COLORS.chartHeartRate }]}>
+                  <Text style={styles.modeBadgeText}>⌚</Text>
+                </View>
+              )}
+            </View>
+          </View>
+          <Text style={styles.historyDetail}>
+            Duration: {item.duration.toFixed(1)}h | AHI: {item.ahi}
+          </Text>
+          <Text style={[styles.historySeverity, { color: getSeverityColor(item.severity) }]}>
+            {item.severity}
+          </Text>
+        </TouchableOpacity>
+      ))
+    )}
+
+    <TouchableOpacity style={styles.closeHistoryButton} onPress={onClose}>
+      <Text style={styles.closeHistoryText}>Close History</Text>
+    </TouchableOpacity>
+  </ScrollView>
+);
+
+const ResultsView: React.FC<{
+  result: AnalysisResult;
+  onNewRecording: () => void;
+  onViewHistory: () => void;
+}> = ({ result, onNewRecording, onViewHistory }) => (
+<ScrollView style={styles.resultsContainer} showsVerticalScrollIndicator={false}>
+<Text style={styles.resultsTitle}>📊 Sleep Analysis Results</Text>
+{/* Multimodal Badge */}
+{(result.videoEnabled || result.wearableEnabled) && (
+  <View style={styles.multimodalBadge}>
+    <Text style={styles.multimodalText}>
+      🎯 Multimodal Analysis 
+      {result.videoEnabled && result.wearableEnabled ? ' (Audio + Video + Wearable)' :
+       result.videoEnabled ? ' (Audio + Video)' :
+       ' (Audio + Wearable)'}
+    </Text>
+  </View>
+)}
+
+{/* Duration */}
+<MetricCard
+  emoji="⏱️"
+  label="Recording Duration"
+  value={`${result.duration.toFixed(2)} hours`}
+  subtext={result.timestamp}
+/>
+
+{/* Audio Section */}
+<Text style={styles.sectionTitle}>🎤 Audio Analysis</Text>
+
+<MetricCard
+  emoji="🔊"
+  label="Snoring Events"
+  value={result.snoringEvents}
+  subtext={`${result.snoringMinutes} minutes (${result.snoringPercentage}%)`}
+/>
+
+<View style={styles.metricCard}>
+  <Text style={styles.metricLabel}>😴 Apnea Events</Text>
+  <Text style={styles.metricValue}>{result.apneaEvents}</Text>
+  <Text style={styles.metricSubtext}>AHI Score: {result.ahi} events/hour</Text>
+  <Text style={styles.metricSubtext}>Longest pause: {result.longestPause}s</Text>
+</View>
+
+{/* Video Section */}
+{result.videoEnabled && result.sleepPositions && (
+  <>
+    <Text style={styles.sectionTitle}>📹 Video Analysis</Text>
+    <PositionChart positions={result.sleepPositions} />
+
+    <MetricCard
+      emoji="🏃"
+      label="Movement Activity"
+      value={result.movementCount || 0}
+      subtext="movements detected"
+    />
+
+    {result.restlessnessScore && (
+      <View style={styles.metricCard}>
+        <Text style={styles.metricLabel}>Restlessness Score</Text>
+        <View style={styles.restlessnessBar}>
+          <View
+            style={[
+              styles.restlessnessBarFill,
+              { width: `${result.restlessnessScore}%` },
+            ]}
+          />
+        </View>
+        <Text style={styles.restlessnessText}>
+          {result.restlessnessScore}/100 
+          {result.restlessnessScore > 70 ? ' (High)' : 
+           result.restlessnessScore > 40 ? ' (Moderate)' : ' (Low)'}
+        </Text>
+      </View>
+    )}
+  </>
+)}
+
+{/* Wearable Section */}
+{result.wearableEnabled && result.heartRate && (
+  <>
+    <Text style={styles.sectionTitle}>⌚ Wearable Data</Text>
+    <HeartRateChart heartRate={result.heartRate} bloodOxygen={result.bloodOxygen} />
+
+    {result.temperature && (
+      <MetricCard
+        emoji="🌡️"
+        label="Body Temperature"
+        value={`${result.temperature.average.toFixed(1)}°C`}
+        subtext={`Range: ${result.temperature.min.toFixed(1)}°C - ${result.temperature.max.toFixed(1)}°C`}
+      />
+    )}
+  </>
+)}
+
+{/* Clinical Assessment */}
+<Text style={styles.sectionTitle}>⚠️ Clinical Assessment</Text>
+
+<View
+  style={[
+    styles.metricCard,
+    styles.severityCard,
+    { borderColor: getSeverityColor(result.severity) },
+  ]}
+>
+  <Text style={styles.metricLabel}>Overall Assessment</Text>
+  <Text style={[styles.severityText, { color: getSeverityColor(result.severity) }]}>
+    {result.severity}
+  </Text>
+
+  {parseFloat(result.ahi) >= 5 && (
+    <View style={styles.recommendationBox}>
+      <Text style={styles.recommendation}>
+        💡 <Text style={styles.recommendationBold}>Recommendation:</Text> Consult a sleep
+        specialist for proper diagnosis and treatment options.
+      </Text>
+
+      {result.sleepPositions && result.sleepPositions.back > 50 && (
+        <Text style={[styles.recommendation, { marginTop: SPACING.sm }]}>
+          💡 <Text style={styles.recommendationBold}>Positional Therapy:</Text> Your apnea
+          events correlate with back sleeping. Try sleeping on your side.
+        </Text>
+      )}
+
+      {result.bloodOxygen && result.bloodOxygen.desaturations > 5 && (
+        <Text style={[styles.recommendation, { marginTop: SPACING.sm }]}>
+          💡 <Text style={styles.recommendationBold}>Oxygen Levels:</Text> Multiple oxygen
+          desaturations detected. This requires medical attention.
+        </Text>
+      )}
+    </View>
+  )}
+
+  {parseFloat(result.ahi) < 5 && (
+    <View style={[styles.recommendationBox, { backgroundColor: 'rgba(0, 255, 136, 0.1)' }]}>
+      <Text style={[styles.recommendation, { color: COLORS.success }]}>
+        ✅ Your breathing patterns during sleep appear normal. Continue healthy sleep habits!
+      </Text>
+    </View>
+  )}
+</View>
+
+{/* Understanding Results */}
+<View style={styles.infoCard}>
+  <Text style={styles.infoTitle}>📖 Understanding Your Results</Text>
+  <Text style={styles.infoText}>
+    • <Text style={styles.infoBold}>AHI (Apnea-Hypopnea Index)</Text>: Breathing pauses per
+    hour{'\n'}
+    • <Text style={styles.infoBold}>Normal</Text>: AHI {'<'} 5{'\n'}
+    • <Text style={styles.infoBold}>Mild</Text>: AHI 5-15{'\n'}
+    • <Text style={styles.infoBold}>Moderate</Text>: AHI 15-30{'\n'}
+    • <Text style={styles.infoBold}>Severe</Text>: AHI {'>'} 30
+    {result.videoEnabled && (
+      <>
+        {'\n\n'}• <Text style={styles.infoBold}>Sleep Position</Text>: Back sleeping worsens
+        apnea{'\n'}• <Text style={styles.infoBold}>Movement</Text>: Higher restlessness =
+        poor sleep quality
+      </>
+    )}
+    {result.wearableEnabled && (
+      <>
+        {'\n\n'}• <Text style={styles.infoBold}>HRV (Heart Rate Variability)</Text>: Higher
+        is better{'\n'}• <Text style={styles.infoBold}>SpO2</Text>: Normal is 95-100%,
+        {'<'}90% is concerning
+      </>
+    )}
+  </Text>
+</View>
+
+{/* Action Buttons */}
+<TouchableOpacity style={styles.newRecordingButton} onPress={onNewRecording} activeOpacity={0.8}>
+  <Text style={styles.newRecordingButtonText}>🔄 New Recording</Text>
+</TouchableOpacity>
+
+<TouchableOpacity style={styles.historyButtonAlt} onPress={onViewHistory} activeOpacity={0.8}>
+  <Text style={styles.historyButtonTextAlt}>📊 View All History</Text>
+</TouchableOpacity>
+
+{/* Disclaimer */}
+<View style={styles.disclaimer}>
+  <Text style={styles.disclaimerText}>
+    ⚠️ Disclaimer: This is a screening tool, not a medical diagnosis. Consult a healthcare
+    professional for proper evaluation.
+  </Text>
+</View>
+  </ScrollView>
+);
+const WearableModal: React.FC<{
+visible: boolean;
+devices: WearableDevice[];
+isScanning: boolean;
+onScan: () => void;
+onConnect: (device: WearableDevice) => void;
+onClose: () => void;
+}> = ({ visible, devices, isScanning, onScan, onConnect, onClose }) => (
+<Modal visible={visible} animationType="slide" transparent={true}>
+<View style={styles.modalOverlay}>
+<View style={styles.modalContent}>
+<View style={styles.modalHeader}>
+<Text style={styles.modalTitle}>⌚ Connect Wearable Device</Text>
+<TouchableOpacity onPress={onClose}>
+<Text style={styles.modalClose}>✕</Text>
+</TouchableOpacity>
+</View>
+    <Text style={styles.modalDescription}>
+      Connect your smartwatch or fitness tracker to monitor heart rate, blood oxygen, and body
+      temperature during sleep.
+    </Text>
+
+    {devices.length === 0 ? (
+      <View style={styles.emptyDevices}>
+        <Text style={styles.emptyDevicesText}>
+          {isScanning ? '🔍 Scanning for devices...' : 'No devices found'}
+        </Text>
+      </View>
+    ) : (
+      <ScrollView style={styles.deviceList}>
+        {devices.map((device) => (
+          <TouchableOpacity
+            key={device.id}
+            style={styles.deviceItem}
+            onPress={() => onConnect(device)}
+          >
+            <Text style={styles.deviceName}>
+              {device.type === 'apple_watch' ? '⌚' :
+               device.type === 'samsung_watch' ? '⌚' :
+               device.type === 'fitbit' ? '📱' :
+               device.type === 'mi_band' ? '⌚' : '📱'}{' '}
+              {device.name}
+            </Text>
+            <Text style={styles.deviceConnect}>Connect →</Text>
+          </TouchableOpacity>
+        ))}
+      </ScrollView>
+    )}
+
+    <TouchableOpacity
+      style={[styles.scanButton, isScanning && styles.scanButtonDisabled]}
+      onPress={onScan}
+      disabled={isScanning}
+    >
+      <Text style={styles.scanButtonText}>
+        {isScanning ? '🔍 Scanning...' : '🔄 Scan for Devices'}
+      </Text>
+    </TouchableOpacity>
+
+    <View style={styles.modalInfo}>
+      <Text style={styles.modalInfoText}>
+        💡 <Text style={styles.modalInfoBold}>Supported Devices:</Text>
+        {'\n'}• Apple Watch (via HealthKit)
+        {'\n'}• Samsung Galaxy Watch (via Health Connect)
+        {'\n'}• Fitbit (via Fitbit API)
+        {'\n'}• Mi Band / Xiaomi (via Mi Fit)
+        {'\n'}• Most Bluetooth fitness trackers
+      </Text>
+    </View>
+  </View>
+</View>
+  </Modal>
+);
+// ===========================================
+// STYLES
+// ===========================================
+// ===========================================
+// STYLES - COZY & RELAXING THEME
+// ===========================================
+// ===========================================
+// STYLES - ULTRA COZY DUAL-MODE DESIGN
+// ===========================================
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0f172a',
+    backgroundColor: '#0a0e27',
   },
-  backgroundGradient: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-  },
+  
+  // ========== HEADER STYLES ==========
   header: {
+    paddingVertical: SPACING.xl,
     paddingTop: 60,
-    paddingBottom: 20,
-    paddingHorizontal: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: 'rgba(255, 255, 255, 0.1)',
+    paddingHorizontal: SPACING.xl,
+    borderBottomWidth: 0,
+    backgroundColor: 'transparent',
   },
   headerContent: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  logoContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  moonIcon: {
-    position: 'relative',
-    marginRight: 12,
-  },
-  moonEmoji: {
-    fontSize: 40,
-  },
-  pingDot: {
-    position: 'absolute',
-    top: -2,
-    right: -2,
-    width: 12,
-    height: 12,
-    backgroundColor: '#06b6d4',
-    borderRadius: 6,
-  },
   logo: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontSize: 32,
+    color: '#d4c5f9',
+    fontWeight: '300',
+    letterSpacing: 6,
+  },
+  settingsButton: {
+    padding: 12,
+    backgroundColor: 'rgba(212, 197, 249, 0.08)',
+    borderRadius: 24,
+  },
+  settingsIcon: {
+    fontSize: 22,
   },
   subtitle: {
-    fontSize: 13,
-    color: '#94a3b8',
-    marginTop: 2,
+    fontSize: 11,
+    color: '#9b8fc4',
+    marginTop: 6,
+    fontWeight: '400',
+    letterSpacing: 3,
+    textTransform: 'uppercase',
   },
-  historyHeaderButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  historyHeaderText: {
-    color: '#fff',
-    fontSize: 16,
-    fontWeight: '600',
-  },
+
+  // ========== STATUS CONTAINER (NIGHT MODE) ==========
   statusContainer: {
     flex: 1,
     justifyContent: 'center',
-    paddingHorizontal: 20,
-  },
-  centerContent: {
     alignItems: 'center',
+    paddingHorizontal: SPACING.xxl,
   },
-  analyzingIcon: {
-    width: 100,
-    height: 100,
-    backgroundColor: 'rgba(59, 130, 246, 0.2)',
-    borderRadius: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 24,
-    borderWidth: 2,
-    borderColor: 'rgba(59, 130, 246, 0.3)',
+  recordingDot: {
+    width: 28,
+    height: 28,
+    borderRadius: 14,
+    backgroundColor: '#ff9ec8',
+    marginBottom: 40,
+    shadowColor: '#ff9ec8',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 1,
+    shadowRadius: 30,
+    elevation: 15,
   },
-  analyzingEmoji: {
-    fontSize: 48,
+  statusText: {
+    fontSize: 24,
+    color: '#d4c5f9',
+    fontWeight: '300',
+    textAlign: 'center',
+    letterSpacing: 1,
   },
-  analyzingTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 8,
+  timer: {
+    fontSize: 72,
+    color: '#d4c5f9',
+    fontWeight: '200',
+    marginTop: 40,
+    letterSpacing: 6,
+    textShadowColor: 'rgba(212, 197, 249, 0.3)',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 30,
   },
-  analyzingSubtitle: {
+  instruction: {
     fontSize: 16,
-    color: '#94a3b8',
-    marginBottom: 32,
+    color: '#9b8fc4',
+    textAlign: 'center',
+    marginTop: 40,
+    lineHeight: 32,
+    fontWeight: '300',
   },
-  progressContainer: {
+  hint: {
+    fontSize: 13,
+    color: '#6b5f8a',
+    marginTop: 16,
+    textAlign: 'center',
+    fontStyle: 'italic',
+    fontWeight: '300',
+  },
+
+  // ========== ANALYZING STATE ==========
+  analyzingText: {
+    fontSize: 22,
+    color: '#d4c5f9',
+    marginBottom: 40,
+    textAlign: 'center',
+    fontWeight: '300',
+    letterSpacing: 1,
+  },
+  progressBarContainer: {
     width: '100%',
-    alignItems: 'center',
+    height: 8,
+    backgroundColor: 'rgba(212, 197, 249, 0.1)',
+    borderRadius: 10,
+    overflow: 'hidden',
+    borderWidth: 0,
   },
   progressBar: {
-    width: '100%',
-    height: 12,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 6,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  progressFill: {
     height: '100%',
-    borderRadius: 6,
+    backgroundColor: '#b8a4f5',
+    borderRadius: 10,
+    shadowColor: '#b8a4f5',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.6,
+    shadowRadius: 15,
   },
   progressText: {
     fontSize: 36,
-    fontWeight: 'bold',
-    color: '#3b82f6',
-    marginTop: 16,
+    color: '#b8a4f5',
+    marginTop: 20,
+    fontWeight: '200',
+    letterSpacing: 3,
   },
-  recordingPulse: {
-    marginBottom: 24,
+
+  // ========== BUTTONS (NIGHT MODE) ==========
+  buttonContainer: {
+    paddingHorizontal: 30,
+    paddingBottom: 40,
   },
-  recordingDot: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    justifyContent: 'center',
+  button: {
+    paddingVertical: 22,
+    borderRadius: 60,
     alignItems: 'center',
-    shadowColor: '#ef4444',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 12 },
+    shadowOpacity: 0.5,
     shadowRadius: 20,
-    elevation: 10,
+    elevation: 12,
+    marginBottom: SPACING.md,
   },
-  recordingIcon: {
-    fontSize: 40,
-    color: '#fff',
+  startButton: {
+    backgroundColor: '#b8a4f5',
   },
-  recordingTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 16,
+  stopButton: {
+    backgroundColor: '#ff9ec8',
   },
-  timerText: {
-    fontSize: 60,
-    fontWeight: 'bold',
-    color: '#3b82f6',
-    letterSpacing: 4,
-    marginBottom: 16,
+  buttonText: {
+    fontSize: 18,
+    color: '#ffffff',
+    fontWeight: '400',
+    letterSpacing: 2,
   },
-  recordingHint: {
-    fontSize: 15,
-    color: '#94a3b8',
-  },
-  completeIcon: {
-    width: 80,
-    height: 80,
-    backgroundColor: 'rgba(16, 185, 129, 0.2)',
-    borderRadius: 40,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 16,
-    borderWidth: 2,
-    borderColor: 'rgba(16, 185, 129, 0.3)',
-  },
-  completeEmoji: {
-    fontSize: 40,
-  },
-  completeTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 8,
-  },
-  completeSubtitle: {
-    fontSize: 15,
-    color: '#94a3b8',
-  },
-  readyIcon: {
-    width: 100,
-    height: 100,
-    backgroundColor: 'rgba(59, 130, 246, 0.2)',
+  historyButton: {
+    backgroundColor: 'rgba(212, 197, 249, 0.08)',
+    paddingVertical: 18,
     borderRadius: 50,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginBottom: 24,
-    borderWidth: 2,
-    borderColor: 'rgba(59, 130, 246, 0.3)',
-  },
-  readyEmoji: {
-    fontSize: 48,
-  },
-  readyTitle: {
-    fontSize: 32,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 12,
-  },
-  readySubtitle: {
-    fontSize: 16,
-    color: '#94a3b8',
-    textAlign: 'center',
-    marginBottom: 32,
-    lineHeight: 24,
-  },
-  instructionsGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    justifyContent: 'center',
-    gap: 12,
-  },
-  instructionCard: {
-    width: '45%',
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    borderRadius: 16,
-    padding: 16,
     alignItems: 'center',
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    borderColor: 'rgba(212, 197, 249, 0.15)',
   },
-  instructionIcon: {
-    fontSize: 32,
-    marginBottom: 8,
+  historyButtonText: {
+    color: '#b8a4f5',
+    fontSize: 16,
+    fontWeight: '400',
+    letterSpacing: 1,
   },
-  instructionText: {
-    fontSize: 13,
-    color: '#cbd5e1',
-    textAlign: 'center',
-  },
-  buttonContainer: {
+
+  // ========== MULTIMODAL BADGE ==========
+  multimodalBadge: {
+    backgroundColor: 'rgba(184, 164, 245, 0.12)',
+    paddingVertical: 10,
     paddingHorizontal: 20,
-    paddingBottom: 30,
+    borderRadius: 30,
+    alignSelf: 'center',
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(184, 164, 245, 0.2)',
   },
-  mainButton: {
-    borderRadius: 16,
-    overflow: 'hidden',
-    elevation: 8,
-    shadowColor: '#3b82f6',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.5,
-    shadowRadius: 12,
+  multimodalText: {
+    color: '#d4c5f9',
+    fontSize: 12,
+    fontWeight: '400',
+    letterSpacing: 1,
   },
-  mainButtonGradient: {
-    paddingVertical: 20,
-    alignItems: 'center',
-  },
-  mainButtonText: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
+
+  // ========== RESULTS (MORNING MODE) ==========
   resultsContainer: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 10,
+    paddingHorizontal: 24,
+    paddingTop: 20,
+    backgroundColor: '#f8f5ff',
   },
   resultsTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#fff',
+    fontSize: 26,
+    color: '#4a3f6b',
+    fontWeight: '300',
+    marginBottom: 30,
     textAlign: 'center',
-    marginBottom: 24,
+    letterSpacing: 2,
   },
-  metricsGrid: {
-    gap: 16,
-    marginBottom: 20,
+  sectionTitle: {
+    fontSize: 20,
+    color: '#5a4d7d',
+    fontWeight: '400',
+    marginTop: 20,
+    marginBottom: 16,
+    letterSpacing: 1,
   },
-  gradientCard: {
-    padding: 20,
-    borderRadius: 20,
+  metricCard: {
+    backgroundColor: '#ffffff',
+    borderRadius: 28,
+    padding: 24,
+    marginBottom: 16,
     borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  metricIcon: {
-    fontSize: 28,
-    marginBottom: 8,
+    borderColor: 'rgba(184, 164, 245, 0.15)',
+    shadowColor: '#b8a4f5',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.08,
+    shadowRadius: 20,
   },
   metricLabel: {
     fontSize: 14,
-    color: '#94a3b8',
-    marginBottom: 8,
-    fontWeight: '600',
+    color: '#8b7fa8',
+    marginBottom: 10,
+    fontWeight: '400',
+    letterSpacing: 0.5,
   },
   metricValue: {
-    fontSize: 40,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 4,
-  },
-  metricUnit: {
-    fontSize: 20,
-    color: '#94a3b8',
+    fontSize: 48,
+    color: '#4a3f6b',
+    fontWeight: '200',
+    marginBottom: 8,
   },
   metricSubtext: {
     fontSize: 13,
-    color: '#94a3b8',
+    color: '#9b8fc4',
+    marginTop: 6,
+    fontWeight: '300',
   },
-  ahiCard: {
-    padding: 24,
-    borderRadius: 24,
-    marginBottom: 20,
+
+  // ========== RESTLESSNESS BAR ==========
+  restlessnessBar: {
+    height: 12,
+    backgroundColor: 'rgba(184, 164, 245, 0.1)',
+    borderRadius: 10,
+    overflow: 'hidden',
+    marginVertical: 12,
+  },
+  restlessnessBarFill: {
+    height: '100%',
+    backgroundColor: '#ffc4a3',
+    borderRadius: 10,
+  },
+  restlessnessText: {
+    fontSize: 13,
+    color: '#ffc4a3',
+    fontWeight: '500',
+    textAlign: 'right',
+  },
+
+  // ========== SEVERITY CARD ==========
+  severityCard: {
     borderWidth: 2,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
+    backgroundColor: '#ffffff',
   },
-  ahiHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'flex-start',
-    marginBottom: 20,
-  },
-  ahiLabel: {
-    fontSize: 15,
-    color: '#94a3b8',
-    marginBottom: 8,
-    fontWeight: '600',
-  },
-  ahiValue: {
-    fontSize: 56,
-    fontWeight: 'bold',
-    color: '#fff',
-    marginBottom: 4,
-  },
-  ahiUnit: {
-    fontSize: 14,
-    color: '#94a3b8',
-  },
-  severityPill: {
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-    borderRadius: 16,
-  },
-  severityPillText: {
-    color: '#fff',
-    fontSize: 15,
-    fontWeight: 'bold',
-  },
-  recommendationCard: {
-    backgroundColor: 'rgba(245, 158, 11, 0.1)',
-    padding: 16,
-    borderRadius: 16,
-    borderLeftWidth: 4,
-    borderLeftColor: '#f59e0b',
-  },
-  recommendationText: {
-    fontSize: 14,
-    color: '#fbbf24',
-    lineHeight: 20,
-  },
-  recommendationBold: {
-    fontWeight: 'bold',
-  },
-  infoCard: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    padding: 20,
-    borderRadius: 20,
-    marginBottom: 20,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  infoTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#3b82f6',
-    marginBottom: 12,
-  },
-  infoText: {
-    fontSize: 14,
-    color: '#cbd5e1',
-    lineHeight: 22,
+  severityText: {
+    fontSize: 32,
+    fontWeight: '300',
+    marginTop: 12,
     marginBottom: 16,
   },
-  infoBold: {
-    fontWeight: 'bold',
-    color: '#fff',
+  recommendationBox: {
+    backgroundColor: 'rgba(255, 196, 163, 0.15)',
+    padding: 18,
+    borderRadius: 20,
+    borderLeftWidth: 3,
+    borderLeftColor: '#ffc4a3',
   },
-  infoGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  infoItem: {
-    width: '48%',
-    padding: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  infoItemTitle: {
+  recommendation: {
     fontSize: 14,
-    fontWeight: 'bold',
-    marginBottom: 4,
+    color: '#8b6f4f',
+    lineHeight: 24,
+    fontWeight: '300',
   },
-  infoItemText: {
-    fontSize: 12,
-    color: '#94a3b8',
+  recommendationBold: {
+    fontWeight: '500',
   },
-  actionButton: {
-    borderRadius: 16,
-    overflow: 'hidden',
-    marginBottom: 12,
-    elevation: 8,
-    shadowColor: '#3b82f6',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.3,
-    shadowRadius: 8,
-  },
-  actionButtonGradient: {
-    paddingVertical: 18,
-    alignItems: 'center',
-  },
-  actionButtonText: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  secondaryButton: {
-    backgroundColor: 'rgba(255, 255, 255, 0.05)',
-    paddingVertical: 16,
-    borderRadius: 16,
-    alignItems: 'center',
-    marginBottom: 20,
+
+  // ========== INFO CARD ==========
+  infoCard: {
+    backgroundColor: 'rgba(248, 245, 255, 0.5)',
+    borderRadius: 24,
+    padding: 24,
+    marginBottom: 16,
     borderWidth: 1,
-    borderColor: 'rgba(59, 130, 246, 0.3)',
+    borderColor: 'rgba(184, 164, 245, 0.2)',
   },
-  secondaryButtonText: {
+  infoTitle: {
+    fontSize: 17,
+    color: '#6b5a8e',
+    fontWeight: '500',
+    marginBottom: 14,
+    letterSpacing: 0.5,
+  },
+  infoText: {
+    fontSize: 13,
+    color: '#8b7fa8',
+    lineHeight: 26,
+    fontWeight: '300',
+  },
+  infoBold: {
+    fontWeight: '500',
+    color: '#5a4d7d',
+  },
+
+  // ========== ACTION BUTTONS (MORNING MODE) ==========
+  newRecordingButton: {
+    backgroundColor: '#b8a4f5',
+    paddingVertical: 20,
+    borderRadius: 50,
+    alignItems: 'center',
+    marginTop: 20,
+    marginBottom: 12,
+    shadowColor: '#b8a4f5',
+    shadowOffset: { width: 0, height: 8 },
+    shadowOpacity: 0.25,
+    shadowRadius: 15,
+    elevation: 8,
+  },
+  newRecordingButtonText: {
+    color: '#ffffff',
+    fontSize: 17,
+    fontWeight: '400',
+    letterSpacing: 1.5,
+  },
+  historyButtonAlt: {
+    backgroundColor: 'transparent',
+    paddingVertical: 18,
+    borderRadius: 50,
+    marginBottom: 12,
+    alignItems: 'center',
+    borderWidth: 1.5,
+    borderColor: 'rgba(184, 164, 245, 0.3)',
+  },
+  historyButtonTextAlt: {
+    color: '#8b7fa8',
     fontSize: 16,
-    fontWeight: '600',
-    color: '#3b82f6',
+    fontWeight: '400',
+    letterSpacing: 1,
   },
+
+  // ========== DISCLAIMER ==========
   disclaimer: {
-    backgroundColor: 'rgba(71, 85, 105, 0.3)',
-    padding: 16,
-    borderRadius: 12,
-    marginBottom: 30,
-    borderLeftWidth: 4,
-    borderLeftColor: '#64748b',
+    backgroundColor: 'rgba(248, 245, 255, 0.6)',
+    padding: 18,
+    borderRadius: 20,
+    marginTop: 20,
+    marginBottom: 50,
+    borderLeftWidth: 3,
+    borderLeftColor: '#9b8fc4',
   },
   disclaimerText: {
     fontSize: 12,
-    color: '#94a3b8',
-    lineHeight: 18,
+    color: '#8b7fa8',
+    lineHeight: 22,
+    fontStyle: 'italic',
+    fontWeight: '300',
   },
-  disclaimerBold: {
-    fontWeight: 'bold',
-  },
+
+  // ========== HISTORY ==========
   historyContainer: {
     flex: 1,
-    paddingHorizontal: 20,
-    paddingTop: 20,
+    paddingHorizontal: 24,
+    paddingTop: 30,
+    backgroundColor: '#f8f5ff',
+  },
+  historyTitle: {
+    fontSize: 24,
+    color: '#4a3f6b',
+    fontWeight: '300',
+    marginBottom: 30,
+    textAlign: 'center',
+    letterSpacing: 2,
+  },
+  historyItem: {
+    backgroundColor: '#ffffff',
+    padding: 22,
+    borderRadius: 24,
+    marginBottom: 14,
+    borderWidth: 1,
+    borderColor: 'rgba(184, 164, 245, 0.15)',
+    shadowColor: '#b8a4f5',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.06,
+    shadowRadius: 12,
   },
   historyHeader: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 24,
-  },
-  historyTitle: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#fff',
-  },
-  closeButton: {
-    width: 40,
-    height: 40,
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    borderRadius: 20,
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  closeButtonText: {
-    fontSize: 24,
-    color: '#fff',
-    fontWeight: '300',
-  },
-  historyItemCard: {
-    marginBottom: 16,
-    borderRadius: 20,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.1)',
-  },
-  historyItemGradient: {
-    padding: 20,
+    marginBottom: 10,
   },
   historyDate: {
-    fontSize: 13,
-    color: '#94a3b8',
-    marginBottom: 12,
-  },
-  historyMetrics: {
-    flexDirection: 'row',
-    marginBottom: 12,
-    gap: 20,
-  },
-  historyMetric: {
-    flex: 1,
-  },
-  historyMetricLabel: {
+    color: '#9b8fc4',
     fontSize: 12,
-    color: '#94a3b8',
-    marginBottom: 4,
+    fontWeight: '300',
   },
-  historyMetricValue: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#fff',
+  historyBadges: {
+    flexDirection: 'row',
+    gap: 6,
   },
-  severityBadge: {
-    alignSelf: 'flex-start',
+  modeBadge: {
+    paddingVertical: 5,
     paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 12,
-    borderWidth: 1,
+    borderRadius: 14,
   },
-  severityBadgeText: {
-    fontSize: 13,
-    fontWeight: 'bold',
+  modeBadgeText: {
+    color: '#ffffff',
+    fontSize: 10,
+    fontWeight: '500',
+    letterSpacing: 0.5,
   },
-  arrowRight: {
-    position: 'absolute',
-    right: 20,
-    top: '50%',
-    fontSize: 24,
-    color: '#94a3b8',
+  historyDetail: {
+    color: '#5a4d7d',
+    fontSize: 14,
+    marginBottom: 8,
+    fontWeight: '300',
+  },
+  historySeverity: {
+    fontSize: 15,
+    fontWeight: '500',
+    marginTop: 6,
   },
   emptyText: {
-    fontSize: 16,
-    color: '#64748b',
+    color: '#9b8fc4',
     textAlign: 'center',
-    marginTop: 60,
+    marginTop: 80,
+    fontSize: 16,
+    fontWeight: '300',
   },
+  closeHistoryButton: {
+    backgroundColor: '#b8a4f5',
+    paddingVertical: 20,
+    borderRadius: 50,
+    alignItems: 'center',
+    marginTop: 30,
+    marginBottom: 50,
+    shadowColor: '#b8a4f5',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.2,
+    shadowRadius: 12,
+  },
+  closeHistoryText: {
+    color: '#ffffff',
+    fontSize: 17,
+    fontWeight: '400',
+    letterSpacing: 1.5,
+  },
+
+  // ========== MODAL ==========
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(10, 14, 39, 0.92)',
+    justifyContent: 'flex-end',
+  },
+  modalContent: {
+    backgroundColor: '#1a1f3a',
+    borderTopLeftRadius: 40,
+    borderTopRightRadius: 40,
+    padding: 30,
+    maxHeight: '80%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 22,
+    color: '#d4c5f9',
+    fontWeight: '400',
+    letterSpacing: 1,
+  },
+  modalClose: {
+    fontSize: 32,
+    color: '#9b8fc4',
+    fontWeight: '200',
+  },
+  modalDescription: {
+    fontSize: 14,
+    color: '#9b8fc4',
+    lineHeight: 26,
+    marginBottom: 30,
+    fontWeight: '300',
+  },
+  emptyDevices: {
+    padding: 40,
+    alignItems: 'center',
+  },
+  emptyDevicesText: {
+    fontSize: 16,
+    color: '#8b7fa8',
+    fontWeight: '300',
+  },
+  deviceList: {
+    maxHeight: 250,
+    marginBottom: 30,
+  },
+  deviceItem: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: 'rgba(212, 197, 249, 0.08)',
+    padding: 18,
+    borderRadius: 20,
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: 'rgba(212, 197, 249, 0.15)',
+  },
+  deviceName: {
+    fontSize: 15,
+    color: '#d4c5f9',
+    fontWeight: '400',
+  },
+  deviceConnect: {
+    fontSize: 14,
+    color: '#b8a4f5',
+    fontWeight: '500',
+    letterSpacing: 0.5,
+  },
+  scanButton: {
+    backgroundColor: '#b8a4f5',
+    paddingVertical: 18,
+    borderRadius: 30,
+    alignItems: 'center',
+    marginBottom: 20,
+    shadowColor: '#b8a4f5',
+    shadowOffset: { width: 0, height: 6 },
+    shadowOpacity: 0.3,
+    shadowRadius: 12,
+  },
+  scanButtonDisabled: {
+    opacity: 0.5,
+  },
+  scanButtonText: {
+    color: '#ffffff',
+    fontSize: 16,
+    fontWeight: '400',
+    letterSpacing: 1,
+  },
+  modalInfo: {
+    backgroundColor: 'rgba(10, 14, 39, 0.4)',
+    padding: 18,
+    borderRadius: 20,
+  },
+  modalInfoText: {
+    fontSize: 12,
+    color: '#9b8fc4',
+    lineHeight: 24,
+    fontWeight: '300',
+  },
+  modalInfoBold: {
+    fontWeight: '500',
+    color: '#d4c5f9',
+  },
+  // ========== ANALYSIS COMPLETE CONTAINER (EASY FIX) ==========
+  analysisCompleteContainer: {
+    // This is the same as statusContainer, but WITHOUT 'flex: 1'
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: SPACING.xxl,
+    paddingTop: 60, // Added padding so it has some space
+    paddingBottom: 40,
+  },
 });
+
