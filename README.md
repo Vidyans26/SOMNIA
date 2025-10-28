@@ -4,6 +4,10 @@
 
 SOMNIA is an advanced multimodal sleep health monitoring system that analyzes sleep patterns, detects sleep disorders, and provides personalized insights for better sleep quality.
 
+## 🎥 Demo Video
+
+Watch the quick demo here: https://youtu.be/20hAvUPZS0k
+
 ---
 
 ## 🎯 Overview
@@ -16,6 +20,13 @@ SOMNIA is a comprehensive sleep monitoring solution that combines:
 - **Disorder Detection**: Recognizes common sleep disorders like sleep apnea, insomnia, and narcolepsy
 
 The system provides users with actionable insights and personalized recommendations to improve sleep quality and overall health.
+
+For a judge-friendly walkthrough, see:
+- Demo guide: [docs/DEMO.md](./docs/DEMO.md)
+- API reference: [docs/API.md](./docs/API.md)
+- Architecture: [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md)
+- Model Card: [docs/MODEL_CARD.md](./docs/MODEL_CARD.md)
+- Privacy: [docs/PRIVACY.md](./docs/PRIVACY.md)
 
 ---
 
@@ -222,6 +233,8 @@ curl -X GET http://localhost:8000/api/v1/disorders
 ```
 
 For comprehensive API documentation, see [API.md](./docs/API.md)
+
+Note: Snoring detection integration code (frozen TensorFlow graph inference) is included and disabled by default behind a feature flag for clean modularity. See the "Snoring Detection" section in [API.md](./docs/API.md) if you want to enable it locally.
 
 ---
 
