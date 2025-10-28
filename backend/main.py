@@ -80,8 +80,7 @@ async def wearable_logs(limit: int = 20):
             continue
     return {"count": len(out), "records": out}
 
-# Register the router (place once, after app defined and middleware configured)
-app.include_router(wearable_router)
+# Router registration will happen after app is created below.
 
 # Import local modules
 from config import API_TITLE, API_DESCRIPTION, API_VERSION, ALLOWED_ORIGINS
@@ -106,6 +105,26 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+# Include wearable endpoints defined above
+app.include_router(wearable_router)
+
+# Conditionally register optional feature routers so default behavior is unchanged
+from config import ENABLE_SNORING, ENABLE_VIDEO_POSE
+
+if ENABLE_VIDEO_POSE:
+    try:
+        from routers.video_pose import router as video_pose_router  # type: ignore
+        app.include_router(video_pose_router)
+    except Exception as e:
+        print(f"[Optional] Video Pose router not loaded: {e}")
+
+if ENABLE_SNORING:
+    try:
+        from routers.snoring import router as snoring_router  # type: ignore
+        app.include_router(snoring_router)
+    except Exception as e:
+        print(f"[Optional] Snoring router not loaded: {e}")
 
 # ==================== DATA MODELS ====================
 

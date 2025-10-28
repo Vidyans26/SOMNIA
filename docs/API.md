@@ -4,6 +4,10 @@
 **Project:** SOMNIA - Sleep Health Monitoring System  
 **Base URL:** `http://localhost:8000` (development)  
 **Version:** 0.1.0  
+### Get Team Information
+
+**Endpoint:** `GET /api/v1/team`
+
 
 > Implementation note: This mid-submission backend returns realistic mock analysis. File uploads are validated by extension but not persisted/processed yet; the analysis endpoint ignores uploaded file IDs and generates mock results.
 
@@ -146,6 +150,52 @@ curl http://localhost:8000/api/v1/health
 ## Analysis Endpoints
 
 ### Upload Audio File
+
+
+## Snoring Detection (adrianagaler/Snoring-Detection)
+
+These endpoints integrate the open-source Snoring-Detection model via a frozen TensorFlow graph.
+
+### Check Model Status
+
+Endpoint: `GET /api/v1/snoring/status`
+
+Authentication: ❌ Not required
+
+Response (200 OK):
+```json
+{ "configured": true, "graph": ".../backend/models/snoring/snoring_frozen_graph.pb", "labels": ".../backend/models/snoring/labels.txt" }
+```
+
+If `configured` is false, place the model files under `backend/models/snoring` (see README there) or set env vars `SNORING_GRAPH_PATH` and `SNORING_LABELS_PATH`.
+
+### Detect Snoring
+
+Endpoint: `POST /api/v1/snoring/detect`
+
+Authentication: ✅ Recommended
+
+Request:
+```bash
+curl -X POST http://localhost:8000/api/v1/snoring/detect \
+  -H "Authorization: Bearer <token>" \
+  -F "file=@clip.wav"
+```
+
+Response (200 OK):
+```json
+{
+  "user_id": "demo_user",
+  "filename": "clip.wav",
+  "prediction": {
+    "label": "snoring",
+    "score": 0.92,
+    "top": [["snoring", 0.92], ["no_snoring", 0.08]]
+  }
+}
+```
+
+Response (501 Not Implemented): Returned if model files are missing.
 
 **Endpoint:** `POST /api/v1/upload/audio`
 

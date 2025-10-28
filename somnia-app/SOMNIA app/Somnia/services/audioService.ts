@@ -60,4 +60,32 @@ export const audioService = {
       return null;
     }
   },
+
+  async uploadForSnoring(uri: string, backendBaseUrl: string): Promise<any> {
+    try {
+      const formData = new FormData();
+      // @ts-ignore: React Native FormData file type
+      formData.append('file', {
+        uri,
+        name: 'audio.wav',
+        type: 'audio/wav',
+      });
+
+      const res = await fetch(`${backendBaseUrl}/api/v1/snoring/detect`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+        },
+        body: formData,
+      });
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Upload failed (${res.status}): ${text}`);
+      }
+      return await res.json();
+    } catch (err) {
+      console.error('SOMNIA: Snoring upload failed', err);
+      throw err;
+    }
+  },
 };
