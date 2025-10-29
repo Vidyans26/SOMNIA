@@ -302,9 +302,13 @@ Features Tested:
 SOMNIA/
 ├── .env                          ✅ Configuration active
 ├── .env.example                  ✅ Template created
+├── EXPO_GO_SETUP.md              ✅ SDK 51 installation guide (NEW)
+├── QUICKSTART.md                 ✅ 5-minute setup guide
+├── SUBMISSION_CHECKLIST.md       ✅ Final checklist
 ├── docker-compose.yml            ✅ ML-enabled config
-├── run.ps1                       ✅ Windows launcher
-├── run.sh                        ✅ Unix/Mac launcher
+├── run.ps1                       ✅ Windows launcher (SDK 51 instructions)
+├── run.sh                        ✅ Unix/Mac launcher (SDK 51 instructions)
+├── test_e2e.py                   ✅ Integration tests
 │
 ├── backend/
 │   ├── main.py                   ✅ Running (PID: 7776)
@@ -322,7 +326,8 @@ SOMNIA/
 │       ├── snoring.py            ✅ Available
 │       └── video_pose.py         ✅ Available
 │
-├── somnia-app/SOMNIA app/Somnia/
+├── somnia-app/SOMNIA app/Somnia/ # Expo SDK 51
+│   ├── app.json                  ✅ SDK 51 configured
 │   ├── app/(tabs)/
 │   │   └── index.tsx             ✅ ML UI components
 │   │

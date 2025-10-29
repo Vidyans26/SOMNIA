@@ -10,6 +10,7 @@ Perfect for first-time users and reviewers:
 
 | Document | Purpose | Time | Priority |
 |----------|---------|------|----------|
+| **[EXPO_GO_SETUP.md](../EXPO_GO_SETUP.md)** | ⚠️ Install Expo Go SDK 51 (Android users MUST read!) | 5 min | ⭐⭐⭐ |
 | **[QUICKSTART.md](../QUICKSTART.md)** | Get SOMNIA running in 5 minutes | 5 min | ⭐⭐⭐ |
 | **[README.md](../README.md)** | Project overview and introduction | 10 min | ⭐⭐⭐ |
 | **[SETUP.md](SETUP.md)** | Detailed installation guide | 15 min | ⭐⭐ |
@@ -175,8 +176,7 @@ Located in [samples/](samples/):
 1. [README.md](../README.md) - Project overview (10 min)
 2. [FINAL_SUMMARY.md](FINAL_SUMMARY.md) - Achievements (10 min)
 3. [SUBMISSION_CHECKLIST.md](../SUBMISSION_CHECKLIST.md) - Deliverables (10 min)
-4. **Demo Video:** https://youtu.be/20hAvUPZS0k (5 min)
-5. [QUICKSTART.md](../QUICKSTART.md) - Try it yourself (5 min)
+4. [QUICKSTART.md](../QUICKSTART.md) - Try it yourself (10 min)
 
 **Total time:** 40 minutes
 
@@ -186,7 +186,6 @@ Located in [samples/](samples/):
 1. [README.md](../README.md) - Vision & features
 2. [STATUS.md](STATUS.md) - Current state
 3. [ROADMAP.md](ROADMAP.md) - Future plans
-4. **Demo Video:** https://youtu.be/20hAvUPZS0k
 
 **Total time:** 30 minutes
 
@@ -206,10 +205,7 @@ Located in [samples/](samples/):
 
 ---
 
-## 🔗 External Resources
-
-### Videos
-- **Demo Video:** https://youtu.be/20hAvUPZS0k
+### 🔗 External Resources
 
 ### Repository
 - **GitHub:** https://github.com/Vidyans26/SOMNIA
@@ -293,8 +289,7 @@ Choose your starting point from the guides above and dive into SOMNIA!
 **Recommended first steps:**
 1. Read [QUICKSTART.md](../QUICKSTART.md)
 2. Get SOMNIA running (5 minutes)
-3. Watch [Demo Video](https://youtu.be/20hAvUPZS0k)
-4. Explore the documentation
+3. Explore the documentation
 
 ---
 

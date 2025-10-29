@@ -1,10 +1,6 @@
 # SOMNIA Demo Guide
 
-This short guide shows how to evaluate SOMNIA in seconds without running anything, plus optional commands if you want to poke the API.
-
-## 🎥 Video Demo
-
-- YouTube: https://youtu.be/20hAvUPZS0k
+This guide shows how to evaluate SOMNIA quickly, with optional commands to test the API.
 
 ## 📌 What to look for
 

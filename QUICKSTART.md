@@ -8,7 +8,9 @@
 
 ✅ [Docker Desktop](https://www.docker.com/get-started) installed  
 ✅ [Node.js 18+](https://nodejs.org/) installed  
-✅ Phone with [Expo Go](https://expo.dev/client) app
+✅ Phone with **Expo Go SDK 51** - ⚠️ **IMPORTANT:**
+   - **Android:** [Download SDK 51](https://expo.dev/go?sdkVersion=51&platform=android&device=true) (don't use Play Store!)
+   - **iOS:** [App Store version](https://apps.apple.com/app/expo-go/id982107779) works fine
 
 ---
 
@@ -59,10 +61,14 @@ npx expo start
 
 ## Step 4: Open on Phone (30 seconds)
 
-1. Open **Expo Go** app on your phone
-2. **Scan QR code** from terminal
-3. Grant **camera & microphone** permissions
-4. **Wait 30-60 seconds** for app to load
+1. Install **Expo Go SDK 51** on your phone:
+   - **Android:** [Download SDK 51 APK](https://expo.dev/go?sdkVersion=51&platform=android&device=true)
+   - **iOS:** Download from App Store
+   - ⚠️ **Don't use Android Play Store** (has incompatible SDK 54)
+2. Open **Expo Go SDK 51** app
+3. **Scan QR code** from terminal
+4. Grant **camera & microphone** permissions
+5. **Wait 30-60 seconds** for app to load
 
 ---
 
@@ -158,13 +164,7 @@ npm install
 
 ---
 
-## 🎥 Demo Video
-
-**Watch the full demo:** https://youtu.be/20hAvUPZS0k
-
----
-
-## 🆘 Need Help?
+##  Need Help?
 
 - **📖 Full Setup:** [docs/SETUP.md](docs/SETUP.md)
 - **🐛 Issues:** [GitHub Issues](https://github.com/Vidyans26/SOMNIA/issues)

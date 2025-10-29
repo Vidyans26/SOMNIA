@@ -12,9 +12,9 @@
 > 
 > An advanced multimodal sleep health monitoring system powered by real Machine Learning models
 
-## 🎥 Demo Video
+---
 
-**Watch the full demo:** https://youtu.be/20hAvUPZS0k
+> ⚠️ **ANDROID USERS:** Expo Go on Play Store (SDK 54) won't work! Download SDK 51: [EXPO_GO_SETUP.md](EXPO_GO_SETUP.md)
 
 ---
 
@@ -187,7 +187,9 @@ Get SOMNIA up and running in under 5 minutes!
 ### Prerequisites
 - **Docker & Docker Compose** ([download](https://www.docker.com/get-started))
 - **Node.js 18+** (for mobile app) ([download](https://nodejs.org/))
-- **Expo Go App** (for mobile testing)
+- **Expo Go SDK 51** (for mobile testing) - ⚠️ **IMPORTANT:** Download SDK 51, not latest from Play Store
+  - **Android:** [Download Expo Go SDK 51](https://expo.dev/go?sdkVersion=51&platform=android&device=true)
+  - **iOS:** [Download from App Store](https://apps.apple.com/app/expo-go/id982107779) (supports SDK 51)
 - **Git** ([download](https://git-scm.com/))
 
 ### Option 1: Docker Deployment (Recommended)
@@ -237,7 +239,11 @@ npm install
 npx expo start
 ```
 
-Scan the QR code with **Expo Go** app on your phone.
+**📱 Install Expo Go SDK 51:**
+- ⚠️ **Android:** The Play Store has SDK 54, which won't work. Download SDK 51: [https://expo.dev/go?sdkVersion=51&platform=android&device=true](https://expo.dev/go?sdkVersion=51&platform=android&device=true)
+- **iOS:** Download from App Store (supports SDK 51)
+
+Scan the QR code with **Expo Go SDK 51** app on your phone.
 
 ### Option 2: Manual Setup (Development)
 
@@ -351,10 +357,19 @@ SOMNIA/
 │   └── node_modules/                          
 │
 └── docs/                                      
-    ├── mid-submission.md                      
-    ├── SETUP.md                                
-    ├── API.md                                
-    └── ARCHITECTURE.md                          
+    ├── INDEX.md                    # Documentation navigation
+    ├── SETUP.md                    # Complete setup guide
+    ├── API.md                      # API documentation
+    ├── ARCHITECTURE.md             # System architecture
+    ├── MODEL_CARD.md               # ML model specifications
+    ├── FINAL_SUMMARY.md            # Project completion summary
+    └── samples/                    # API examples (JSON)
+
+Key Files:
+├── EXPO_GO_SETUP.md               ⚠️ Android users MUST READ (SDK 51)
+├── QUICKSTART.md                   5-minute setup guide
+├── SUBMISSION_CHECKLIST.md         Final submission verification
+└── test_e2e.py                     Integration tests
 
 ```
 
@@ -524,12 +539,15 @@ curl http://localhost:8000/api/v1/disorders
 curl http://localhost:8000/api/v1/demo-analysis
 ```
 
-**2. Test Mobile App:**
-1. Open Expo Go on your phone
-2. Record 30-second sleep audio
-3. Stop recording
-4. Tap "Analyze Sleep"
-5. View ML-enhanced results
+**Test Mobile App:**
+1. Install Expo Go SDK 51 on your phone:
+   - **Android:** [Download SDK 51](https://expo.dev/go?sdkVersion=51&platform=android&device=true) (⚠️ Don't use Play Store version)
+   - **iOS:** Download from App Store
+2. Open Expo Go and scan QR code
+3. Record 30-second sleep audio
+4. Stop recording
+5. Tap "Analyze Sleep"
+6. View ML-enhanced results
 
 **3. Verify ML Models:**
 ```bash
@@ -631,13 +649,13 @@ SOMNIA is a research prototype and not a medical device. Do not use it for diagn
 
 ---
 
-## 🎯 Why it matters
+### 🎯 Why it matters
 
 - Innovation: Multimodal fusion (audio, video pose, wearable) with deployable, lightweight design (feature-flagged integrations).
 - Impact: Screens for sleep risks (apnea/snoring, low SpO2 patterns) with actionable recommendations.
 - Feasibility: Pragmatic FastAPI backend and Expo app; clear API and docs; optional TF/TFLite integration.
 - Technical Depth: Audio processing, pose feature extraction, wearable heuristics, API-first design.
-- Polish: Demo video, API examples, Model Card, Privacy notes, CI badge, submission guide.
+- Polish: Comprehensive documentation (17,000+ lines), API examples, Model Card, Privacy notes, CI badge, submission guide.
 
 ---
 
@@ -725,8 +743,8 @@ SOMNIA provides comprehensive documentation (~15,000 lines) to help you understa
 
 **New Users:**
 1. Read [SETUP.md](docs/SETUP.md) - Get started in 5-10 minutes
-2. Watch [Demo Video](https://youtu.be/20hAvUPZS0k)
-3. Try [DEMO.md](docs/DEMO.md) - Run demo analysis
+2. Try [DEMO.md](docs/DEMO.md) - Run demo analysis
+3. Read [QUICKSTART.md](QUICKSTART.md) - Quick setup guide
 
 **Developers:**
 1. Read [ARCHITECTURE.md](docs/ARCHITECTURE.md) - Understand design
@@ -736,7 +754,7 @@ SOMNIA provides comprehensive documentation (~15,000 lines) to help you understa
 **Reviewers/Judges:**
 1. Read [FINAL_SUMMARY.md](docs/FINAL_SUMMARY.md) - Project completion
 2. Read [STATUS.md](docs/STATUS.md) - Current status
-3. Watch [Demo Video](https://youtu.be/20hAvUPZS0k)
+3. Try [QUICKSTART.md](QUICKSTART.md) - Test it yourself
 
 ---
 
@@ -861,12 +879,12 @@ ML Integration: VERIFIED ✅
 Status: PRODUCTION READY 🚀
 ```
 
-### 🎥 Demo Materials
+### 🚀 Live Demo
 
-- **Video:** https://youtu.be/20hAvUPZS0k
 - **Live Backend:** http://localhost:8000 (when running)
 - **API Docs:** http://localhost:8000/docs
 - **GitHub:** https://github.com/Vidyans26/SOMNIA
+- **Try It:** Follow [QUICKSTART.md](QUICKSTART.md) for 5-minute setup
 
 ---
 

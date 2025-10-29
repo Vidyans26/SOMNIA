@@ -67,7 +67,9 @@ python test_e2e.py
 
 **Verify:**
 - App builds without errors
-- Runs on iOS/Android via Expo Go
+- Runs on iOS/Android via Expo Go SDK 51
+  - ⚠️ **Android users:** Download SDK 51 from [https://expo.dev/go?sdkVersion=51&platform=android&device=true](https://expo.dev/go?sdkVersion=51&platform=android&device=true)
+  - **DO NOT** use Play Store version (SDK 54 - incompatible)
 - Recording and playback work
 
 ### ✅ Documentation
@@ -117,13 +119,10 @@ ML Integration: VERIFIED ✅
 
 ### ✅ Demo Materials
 
-- [x] Demo video created (YouTube)
-- [x] Video URL in README
+- [x] Documentation comprehensive (17,000+ lines)
 - [x] Demo script (DEMO.md)
 - [x] API examples (docs/samples/)
-- [x] Screenshots (if applicable)
-
-**Demo Video:** https://youtu.be/20hAvUPZS0k
+- [x] Screenshots ready (if applicable)
 
 ---
 
@@ -268,8 +267,7 @@ ML INTEGRATION VERIFIED ✅
 
 - [x] **Source Code** - GitHub repository
 - [x] **README** - Comprehensive overview
-- [x] **Documentation** - 10+ detailed guides
-- [x] **Demo Video** - YouTube link
+- [x] **Documentation** - 15+ detailed guides (17,000+ lines)
 - [x] **Working Application** - Deployed and tested
 - [x] **ML Models** - Real TensorFlow models included
 - [x] **API Documentation** - Swagger UI
@@ -366,11 +364,11 @@ ML INTEGRATION VERIFIED ✅
    - Run setup scripts
    - Verify everything works
 
-4. **✅ Submit**
+3. **✅ Submit**
    - Submit GitHub URL
-   - Submit demo video link
    - Include team information
    - Add any required forms
+   - Provide documentation links
 
 ---
 
@@ -378,7 +376,7 @@ ML INTEGRATION VERIFIED ✅
 
 **Project:** SOMNIA - Sleep Health Monitoring System  
 **GitHub:** https://github.com/Vidyans26/SOMNIA  
-**Demo Video:** https://youtu.be/20hAvUPZS0k  
+**Documentation:** https://github.com/Vidyans26/SOMNIA/tree/main/docs  
 
 **Team Members:**
 - Ved Pashine
@@ -393,7 +391,7 @@ ML INTEGRATION VERIFIED ✅
 - ✅ **Innovation** - Multimodal AI-powered sleep analysis
 - ✅ **Impact** - Addresses critical sleep health issues
 - ✅ **Technical Depth** - Real ML models, production deployment
-- ✅ **Polish** - Comprehensive docs, demo video, clean code
+- ✅ **Polish** - Comprehensive docs (17,000+ lines), clean code
 - ✅ **Feasibility** - Works end-to-end, well-tested
 - ✅ **Scalability** - Docker deployment, modular architecture
 

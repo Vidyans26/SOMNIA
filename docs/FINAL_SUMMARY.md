@@ -210,16 +210,21 @@ Status: ⚠️ SYSTEM PARTIALLY OPERATIONAL - ML INTEGRATION VERIFIED
 ### New Files
 ```
 SOMNIA/
-├── run.ps1                    ✅ Windows deployment script
-├── run.sh                     ✅ Unix/Mac deployment script
+├── EXPO_GO_SETUP.md           ✅ SDK 51 installation guide (NEW!)
+├── QUICKSTART.md              ✅ 5-minute setup guide (NEW!)
+├── SUBMISSION_CHECKLIST.md    ✅ Final verification (NEW!)
+├── run.ps1                    ✅ Windows deployment script (Updated SDK 51)
+├── run.sh                     ✅ Unix/Mac deployment script (Updated SDK 51)
 ├── .env.example               ✅ Environment template
 ├── test_e2e.py                ✅ E2E integration test
 ├── e2e_test_results.json      ✅ Test results
 │
 ├── docs/
-│   ├── INTEGRATION.md         ✅ Complete integration guide (NEW!)
-│   ├── STATUS.md              ✅ System status report (NEW!)
-│   └── FINAL_SUMMARY.md       ✅ This file (NEW!)
+│   ├── INDEX.md               ✅ Documentation index (NEW!)
+│   ├── INTEGRATION.md         ✅ Complete integration guide (7,000+ lines)
+│   ├── STATUS.md              ✅ System status report (Updated)
+│   ├── SETUP.md               ✅ Complete setup guide (Updated SDK 51)
+│   └── FINAL_SUMMARY.md       ✅ This file
 │
 ├── backend/
 │   ├── Dockerfile             ✅ Updated (ML-ready)
@@ -231,7 +236,8 @@ SOMNIA/
 ├── docker-compose.yml         ✅ Updated (ML config)
 │
 └── somnia-app/
-    └── SOMNIA app/Somnia/
+    └── SOMNIA app/Somnia/     # Expo SDK 51
+        ├── app.json           ✅ SDK 51 configured
         ├── app/(tabs)/
         │   └── index.tsx      ✅ ML UI components
         ├── services/

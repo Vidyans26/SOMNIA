@@ -195,10 +195,14 @@ ${WHITE}📊 Service Endpoints:
 📱 Mobile App Instructions:
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 1. Open a new terminal
-2. Navigate to: somnia-app/SOMNIA app/Somnia
+2. Navigate to: somnia-app/SOMNIA\ app/Somnia
 3. Run: npm install (if not done already)
 4. Run: npx expo start
-5. Scan QR code with Expo Go app
+5. Install Expo Go SDK 51 on your phone:
+   - Android: https://expo.dev/go?sdkVersion=51&platform=android&device=true
+   - ⚠️ DO NOT use Play Store (has SDK 54, incompatible!)
+   - iOS: Download from App Store
+6. Scan QR code with Expo Go SDK 51 app
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 🛠️  Useful Commands:
