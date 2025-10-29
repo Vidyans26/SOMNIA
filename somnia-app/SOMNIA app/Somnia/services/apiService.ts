@@ -97,8 +97,11 @@ function mapAnalyzeToResult(api: any, settings: MonitoringSettings, durationSeco
   const deepMin = Number(stages.deep ?? 0);
   const remMin = Number(stages.rem ?? 0);
 
+  // Use actual recording duration, not API's total_sleep_time
+  const actualDurationHours = durationSeconds / 3600;
+
   const result: AnalysisResult = {
-    duration: totalHours,
+    duration: actualDurationHours,
     timestamp: new Date().toLocaleString(),
 
     // Sleep stages from ML analysis
