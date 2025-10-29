@@ -599,7 +599,13 @@ const ResultsView: React.FC<{
 <MetricCard
   emoji="⏱️"
   label="Recording Duration"
-  value={`${result.duration.toFixed(2)} hours`}
+  value={
+    result.duration < 0.0167 // Less than 1 minute (1/60 hour)
+      ? `${Math.round(result.duration * 3600)} seconds`
+      : result.duration < 1 
+      ? `${Math.round(result.duration * 60)} minutes` 
+      : `${result.duration.toFixed(2)} hours`
+  }
   subtext={result.timestamp}
 />
 
