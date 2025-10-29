@@ -50,11 +50,11 @@ Expected response (abbreviated):
 }
 ```
 
-## � Extras
+## Extras
 
 - Postman collection: [docs/api-collection.postman_collection.json](./api-collection.postman_collection.json)
 - Sample requests/responses: [docs/samples/](./samples/)
 
-## �🔈 Optional: snoring detection (code included, toggled off by default)
+## 🔈 Optional: snoring detection (code included, toggled off by default)
 
 Snoring detection integration (frozen TensorFlow graph) is present and can be enabled via `ENABLE_SNORING=true`. See docs/API.md (Snoring Detection section) for the status and detect endpoints.

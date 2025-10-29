@@ -19,6 +19,8 @@ import { audioService } from '../../services/audioService';
 import { videoService } from '../../services/videoService';
 import { wearableService, WearableDevice } from '../../services/wearableService';
 import { storageService } from '../../services/storageService';
+import { apiService } from '../../services/apiService';
+import { BACKEND_BASE_URL } from '../../services/config';
 
 // Utils
 import { generateMockResults } from '../../utils/mockData';
@@ -188,29 +190,50 @@ export default function TabOneScreen() {
         });
       }, 250);
       
-      // Simulate analysis (or call real ML API here)
-      const analysisTime = settings.videoEnabled || settings.wearableEnabled ? 3500 : 2000;
-      
-      setTimeout(async () => {
-        // TODO: Replace with real ML API call
+      // Try backend first (if configured); otherwise gracefully fall back to mock
+      try {
+        let results = null as AnalysisResult | null;
+        if (BACKEND_BASE_URL && BACKEND_BASE_URL.trim().length > 0) {
+          try {
+            results = await apiService.analyze(recordingDuration, settings, BACKEND_BASE_URL);
+          } catch (e1) {
+            console.warn('Analyze failed, trying demo-analysis...', e1);
+            results = await apiService.demoAnalysis(settings, BACKEND_BASE_URL);
+          }
+        }
+
+        if (!results) {
+          results = generateMockResults(
+            recordingDuration,
+            settings.videoEnabled,
+            settings.wearableEnabled
+          );
+        }
+
+        setAnalysisResult(results);
+        await storageService.saveResult(results);
+
+        const updatedHistory = await storageService.getHistory();
+        setHistory(updatedHistory);
+
+        setIsAnalyzing(false);
+        clearInterval(progressInterval);
+        Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
+      } catch (err) {
+        console.error('Analysis error; falling back to mock', err);
         const results = generateMockResults(
           recordingDuration,
           settings.videoEnabled,
           settings.wearableEnabled
         );
-        
         setAnalysisResult(results);
         await storageService.saveResult(results);
-        
-        // Reload history
         const updatedHistory = await storageService.getHistory();
         setHistory(updatedHistory);
-        
         setIsAnalyzing(false);
         clearInterval(progressInterval);
-        
         Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
-      }, analysisTime);
+      }
       
     } catch (err) {
       console.error('Failed to stop recording', err);
@@ -651,6 +674,99 @@ const ResultsView: React.FC<{
 {/* Clinical Assessment */}
 <Text style={styles.sectionTitle}>⚠️ Clinical Assessment</Text>
 
+{/* ML-Enhanced Sleep Quality Metrics */}
+{result.sleepEfficiency !== undefined && (
+  <View style={styles.metricCard}>
+    <Text style={styles.metricLabel}>😴 Sleep Efficiency</Text>
+    <Text style={styles.metricValue}>{result.sleepEfficiency}%</Text>
+    <Text style={styles.metricSubtext}>
+      {result.sleepEfficiency >= 85 ? 'Excellent' :
+       result.sleepEfficiency >= 75 ? 'Good' :
+       result.sleepEfficiency >= 65 ? 'Fair' : 'Poor'}
+    </Text>
+  </View>
+)}
+
+{/* Sleep Stages from ML Analysis */}
+{(result.wakeMinutes !== undefined || result.lightSleepMinutes !== undefined) && (
+  <>
+    <Text style={styles.sectionTitle}>🌙 Sleep Stages (ML Analysis)</Text>
+    <View style={styles.sleepStagesCard}>
+      {result.wakeMinutes !== undefined && (
+        <View style={styles.sleepStageRow}>
+          <Text style={styles.sleepStageLabel}>👁️ Wake:</Text>
+          <Text style={styles.sleepStageValue}>{result.wakeMinutes} min</Text>
+        </View>
+      )}
+      {result.lightSleepMinutes !== undefined && (
+        <View style={styles.sleepStageRow}>
+          <Text style={styles.sleepStageLabel}>🌤️ Light Sleep:</Text>
+          <Text style={styles.sleepStageValue}>{result.lightSleepMinutes} min</Text>
+        </View>
+      )}
+      {result.deepSleepMinutes !== undefined && (
+        <View style={styles.sleepStageRow}>
+          <Text style={styles.sleepStageLabel}>🌑 Deep Sleep:</Text>
+          <Text style={styles.sleepStageValue}>{result.deepSleepMinutes} min</Text>
+        </View>
+      )}
+      {result.remSleepMinutes !== undefined && (
+        <View style={styles.sleepStageRow}>
+          <Text style={styles.sleepStageLabel}>💭 REM Sleep:</Text>
+          <Text style={styles.sleepStageValue}>{result.remSleepMinutes} min</Text>
+        </View>
+      )}
+    </View>
+  </>
+)}
+
+{/* Risk Level from ML Model */}
+{result.riskLevel && (
+  <View style={[
+    styles.metricCard,
+    { borderColor: result.riskLevel === 'high' ? '#ff4444' : 
+                    result.riskLevel === 'moderate' ? '#ffaa00' : '#00ff88' }
+  ]}>
+    <Text style={styles.metricLabel}>🎯 ML Risk Assessment</Text>
+    <Text style={[styles.severityText, { 
+      color: result.riskLevel === 'high' ? '#ff4444' : 
+             result.riskLevel === 'moderate' ? '#ffaa00' : '#00ff88'
+    }]}>
+      {result.riskLevel.toUpperCase()} RISK
+    </Text>
+    <Text style={styles.metricSubtext}>Based on multimodal ML analysis</Text>
+  </View>
+)}
+
+{/* Disorders Detected by ML */}
+{result.disorders && result.disorders.length > 0 && (
+  <>
+    <Text style={styles.sectionTitle}>🔬 Disorders Detected (ML)</Text>
+    <View style={styles.disordersCard}>
+      {result.disorders.map((disorder, index) => (
+        <View key={index} style={styles.disorderItem}>
+          <Text style={styles.disorderText}>⚠️ {disorder.replace('_', ' ').toUpperCase()}</Text>
+        </View>
+      ))}
+    </View>
+  </>
+)}
+
+{/* ML Recommendations */}
+{result.recommendations && result.recommendations.length > 0 && (
+  <>
+    <Text style={styles.sectionTitle}>💡 ML Recommendations</Text>
+    <View style={styles.recommendationsCard}>
+      {result.recommendations.map((rec, index) => (
+        <Text key={index} style={styles.mlRecommendation}>
+          • {rec}
+        </Text>
+      ))}
+    </View>
+  </>
+)}
+
+{/* Original Clinical Assessment */}
 <View
   style={[
     styles.metricCard,
@@ -1394,13 +1510,72 @@ const styles = StyleSheet.create({
     color: '#d4c5f9',
   },
   // ========== ANALYSIS COMPLETE CONTAINER (EASY FIX) ==========
-  analysisCompleteContainer: {
+  analysisCompleteContainer: {
     // This is the same as statusContainer, but WITHOUT 'flex: 1'
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingHorizontal: SPACING.xxl,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingHorizontal: SPACING.xxl,
     paddingTop: 60, // Added padding so it has some space
     paddingBottom: 40,
-  },
+  },
+  
+  // ========== ML ENHANCED RESULTS ==========
+  sleepStagesCard: {
+    backgroundColor: 'rgba(10, 14, 39, 0.5)',
+    borderRadius: 20,
+    padding: SPACING.lg,
+    marginBottom: SPACING.md,
+    borderWidth: 2,
+    borderColor: 'rgba(184, 164, 245, 0.3)',
+  },
+  sleepStageRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: SPACING.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: 'rgba(155, 143, 196, 0.1)',
+  },
+  sleepStageLabel: {
+    fontSize: 16,
+    color: '#d4c5f9',
+    fontWeight: '300',
+  },
+  sleepStageValue: {
+    fontSize: 18,
+    color: '#ffffff',
+    fontWeight: '500',
+  },
+  disordersCard: {
+    backgroundColor: 'rgba(255, 68, 68, 0.1)',
+    borderRadius: 20,
+    padding: SPACING.lg,
+    marginBottom: SPACING.md,
+    borderWidth: 2,
+    borderColor: 'rgba(255, 68, 68, 0.3)',
+  },
+  disorderItem: {
+    paddingVertical: SPACING.sm,
+  },
+  disorderText: {
+    fontSize: 15,
+    color: '#ff6b6b',
+    fontWeight: '500',
+    letterSpacing: 0.5,
+  },
+  recommendationsCard: {
+    backgroundColor: 'rgba(0, 255, 136, 0.08)',
+    borderRadius: 20,
+    padding: SPACING.lg,
+    marginBottom: SPACING.md,
+    borderWidth: 2,
+    borderColor: 'rgba(0, 255, 136, 0.2)',
+  },
+  mlRecommendation: {
+    fontSize: 14,
+    color: '#00ff88',
+    lineHeight: 24,
+    fontWeight: '300',
+    marginBottom: SPACING.xs,
+  },
 });
-

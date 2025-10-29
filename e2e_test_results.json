@@ -1,0 +1,45 @@
+{
+  "timestamp": "2025-10-29 10:22:24",
+  "total_tests": 6,
+  "passed": 3,
+  "failed": 3,
+  "success_rate": 50.0,
+  "results": [
+    {
+      "test": "Backend Health Endpoint",
+      "passed": true,
+      "details": "Status: operational, Version: 0.1.0",
+      "timestamp": "2025-10-29 10:22:11"
+    },
+    {
+      "test": "Demo Analysis Endpoint",
+      "passed": false,
+      "details": "Sleep Efficiency: 0.86%",
+      "timestamp": "2025-10-29 10:22:14"
+    },
+    {
+      "test": "ML Analysis with Wearable Data",
+      "passed": true,
+      "details": "ML Fields Present: True",
+      "timestamp": "2025-10-29 10:22:17"
+    },
+    {
+      "test": "ML Analysis with Wearable Data",
+      "passed": false,
+      "details": "Error: 'str' object has no attribute 'get'",
+      "timestamp": "2025-10-29 10:22:17"
+    },
+    {
+      "test": "Disorders Endpoint",
+      "passed": false,
+      "details": "Found 2 disorder definitions",
+      "timestamp": "2025-10-29 10:22:20"
+    },
+    {
+      "test": "Swagger API Documentation",
+      "passed": true,
+      "details": "Available at: http://localhost:8000/docs",
+      "timestamp": "2025-10-29 10:22:23"
+    }
+  ]
+}

@@ -26,6 +26,18 @@ export interface AnalysisResult {
   severity: string;
   longestPause: string;
   
+  // Sleep quality metrics from ML models
+  sleepEfficiency?: number; // 0-100%
+  wakeMinutes?: number;
+  lightSleepMinutes?: number;
+  deepSleepMinutes?: number;
+  remSleepMinutes?: number;
+  
+  // ML Risk assessment
+  riskLevel?: string; // 'low' | 'moderate' | 'high'
+  disorders?: string[]; // List of detected disorders
+  recommendations?: string[]; // ML-generated recommendations
+  
   // Video metrics
   videoEnabled: boolean;
   sleepPositions?: SleepPositions;

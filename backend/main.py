@@ -4,22 +4,19 @@ Multimodal Sleep Health Monitoring System
 Team: Chimpanzini Bananini
 """
 
-from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
+from fastapi import FastAPI, File, UploadFile, HTTPException, Depends, APIRouter, Body
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 import uvicorn
 from datetime import datetime
-from typing import List, Optional
+from typing import List, Optional, Dict, Any
 from pydantic import BaseModel
 import json
-from fastapi import APIRouter, Body
-from utils.wearable import summarize_wearable_samples, save_wearable_record
-# === begin: wearable endpoints inserted directly into main.py ===
-from fastapi import APIRouter, Body, Depends, HTTPException
-from typing import Dict, Any
-from utils.wearable import summarize_wearable_samples, save_wearable_record, WEARABLE_DIR
-import json
 from pathlib import Path
+from backend.utils.auth import get_current_user
+from backend.utils.wearable import summarize_wearable_samples, save_wearable_record, WEARABLE_DIR
+# === begin: wearable endpoints inserted directly into main.py ===
+from fastapi import Depends
 
 wearable_router = APIRouter(prefix="/api/v1", tags=["Wearable"])
 
@@ -83,10 +80,9 @@ async def wearable_logs(limit: int = 20):
 # Router registration will happen after app is created below.
 
 # Import local modules
-from config import API_TITLE, API_DESCRIPTION, API_VERSION, ALLOWED_ORIGINS
-from models.sleep_analyzer import analyze_sleep_audio, detect_sleep_disorders
-from models.sleep_report import generate_sleep_report
-from utils.auth import get_current_user
+from backend.config import API_TITLE, API_DESCRIPTION, API_VERSION, ALLOWED_ORIGINS
+from backend.models.sleep_analyzer import analyze_sleep_audio, detect_sleep_disorders
+from backend.models.sleep_report import generate_sleep_report
 
 # Initialize FastAPI
 app = FastAPI(
@@ -109,19 +105,44 @@ app.add_middleware(
 # Include wearable endpoints defined above
 app.include_router(wearable_router)
 
+# Initialize ML Models if enabled
+from backend.config import ENABLE_SNORING, ENABLE_VIDEO_POSE, ENABLE_ML_MODELS
+
+@app.on_event("startup")
+async def startup_event():
+    """Initialize ML models on startup if enabled"""
+    if ENABLE_ML_MODELS:
+        try:
+            from backend.models import inference
+            from backend.config import SPO2_MODEL_PATH, ECG_MODEL_PATH
+            print(f"🤖 Initializing ML models...")
+            print(f"  - SpO2 model: {SPO2_MODEL_PATH}")
+            print(f"  - ECG model: {ECG_MODEL_PATH}")
+            inference.init_models(spo2_path=SPO2_MODEL_PATH, ecg_path=ECG_MODEL_PATH)
+            print(f"✅ ML models initialized successfully")
+        except Exception as e:
+            print(f"⚠️ ML models initialization failed (will use mock mode): {e}")
+    else:
+        print(f"ℹ️ ML models disabled - using mock mode")
+    
+    print("==================================================")
+    print("SOMNIA Sleep Health Monitoring System")
+    print("Team: Chimpanzini Bananini")
+    print(f"Starting up at {datetime.now()}")
+    print("==================================================")
+
 # Conditionally register optional feature routers so default behavior is unchanged
-from config import ENABLE_SNORING, ENABLE_VIDEO_POSE
 
 if ENABLE_VIDEO_POSE:
     try:
-        from routers.video_pose import router as video_pose_router  # type: ignore
+        from backend.routers.video_pose import router as video_pose_router  # type: ignore
         app.include_router(video_pose_router)
     except Exception as e:
         print(f"[Optional] Video Pose router not loaded: {e}")
 
 if ENABLE_SNORING:
     try:
-        from routers.snoring import router as snoring_router  # type: ignore
+        from backend.routers.snoring import router as snoring_router  # type: ignore
         app.include_router(snoring_router)
     except Exception as e:
         print(f"[Optional] Snoring router not loaded: {e}")
@@ -208,13 +229,60 @@ async def upload_audio_file(
 
 @app.post("/api/v1/analyze", response_model=AnalysisResult, tags=["Analysis"])
 async def analyze_sleep(
-    data: SleepData,
-    current_user: dict = Depends(get_current_user)
+    data: SleepData
 ):
-    """Analyze sleep data from multiple modalities"""
+    """Analyze sleep data from multiple modalities with ML model integration (demo mode - no auth required)"""
     try:
-        # Generate mock analysis (in production, load actual audio file)
+        # Generate base analysis (audio processing)
         analysis_result = analyze_sleep_audio(None)
+        
+        # Extract wearable data if available
+        spo2_data = data.wearable_data.get('spo2_data') if data.wearable_data else None
+        heart_rate_data = data.wearable_data.get('heart_rate_data') if data.wearable_data else None
+        
+        # If ML models are enabled and wearable data is available, use real predictions
+        if ENABLE_ML_MODELS and (spo2_data or heart_rate_data):
+            try:
+                from backend.models import inference
+                
+                # SpO2 Analysis
+                if spo2_data:
+                    spo2_features = {
+                        "avg_spo2": sum(spo2_data) / len(spo2_data) if spo2_data else 98.0,
+                        "min_spo2": min(spo2_data) if spo2_data else 95.0,
+                    }
+                    spo2_result = inference.predict_spo2(spo2_features)
+                    print(f"🩺 SpO2 Analysis: {spo2_result}")
+                    
+                    # Adjust apnea events based on SpO2 prediction
+                    if spo2_result["label"] == "low":
+                        analysis_result["apnea_events"] = int(analysis_result["apnea_events"] * 1.5)
+                
+                # Heart Rate / ECG Analysis
+                if heart_rate_data:
+                    # Calculate HRV features from heart rate data
+                    hr_array = heart_rate_data
+                    avg_hr = sum(hr_array) / len(hr_array) if hr_array else 70.0
+                    # Simple RMSSD approximation
+                    diffs = [abs(hr_array[i+1] - hr_array[i]) for i in range(len(hr_array)-1)]
+                    rmssd = (sum([d**2 for d in diffs]) / len(diffs)) ** 0.5 if diffs else 30.0
+                    
+                    ecg_features = {
+                        "avg_hr": avg_hr,
+                        "rmssd": rmssd,
+                    }
+                    ecg_result = inference.predict_ecg(ecg_features)
+                    print(f"❤️ ECG Analysis: {ecg_result}")
+                    
+                    # Adjust risk based on ECG prediction
+                    if ecg_result["label"] == "abnormal":
+                        if analysis_result["risk_assessment"] == "low":
+                            analysis_result["risk_assessment"] = "moderate"
+                        elif analysis_result["risk_assessment"] == "moderate":
+                            analysis_result["risk_assessment"] = "high"
+                
+            except Exception as e:
+                print(f"⚠️ ML model inference failed, using mock mode: {e}")
         
         # Detect disorders
         disorders = detect_sleep_disorders(analysis_result)
@@ -370,15 +438,6 @@ async def general_exception_handler(request, exc):
     )
 
 # ==================== STARTUP/SHUTDOWN ====================
-
-@app.on_event("startup")
-async def startup_event():
-    """Startup event"""
-    print("=" * 50)
-    print("SOMNIA Sleep Health Monitoring System")
-    print("Team: Chimpanzini Bananini")
-    print("Starting up at", datetime.now())
-    print("=" * 50)
 
 @app.on_event("shutdown")
 async def shutdown_event():

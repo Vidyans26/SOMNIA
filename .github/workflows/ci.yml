@@ -10,9 +10,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
-      - name: Python version
-        run: python3 --version
-      - name: Node version
-        run: node --version || true
-      - name: Lint (basic)
-        run: echo "Build OK"
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Install minimal backend deps
+        run: |
+          python -m pip install --upgrade pip
+          pip install fastapi uvicorn pydantic numpy pytest
+      - name: Run backend tests
+        run: pytest -q backend/tests

@@ -62,5 +62,10 @@ SNORING_OUTPUT_TENSOR = os.getenv("SNORING_OUTPUT_TENSOR", "labels_softmax:0")
 # Feature flags (default off so nothing changes unless explicitly enabled)
 ENABLE_SNORING = os.getenv("ENABLE_SNORING", "false").lower() == "true"
 ENABLE_VIDEO_POSE = os.getenv("ENABLE_VIDEO_POSE", "false").lower() == "true"
+ENABLE_ML_MODELS = os.getenv("ENABLE_ML_MODELS", "false").lower() == "true"
+
+# ML Model Paths
+SPO2_MODEL_PATH = os.getenv("SPO2_MODEL_PATH", os.path.join(os.path.dirname(__file__), "models", "SpO2_weights.hdf5"))
+ECG_MODEL_PATH = os.getenv("ECG_MODEL_PATH", os.path.join(os.path.dirname(__file__), "models", "ecg_weights.hdf5"))
 
 print(f"SOMNIA Configuration Loaded - Environment: {ENVIRONMENT}")

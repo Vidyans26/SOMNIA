@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  # Backend API with ML Models
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    container_name: somnia-backend
+    environment:
+      - DEBUG=true
+      - ENVIRONMENT=production
+      - HOST=0.0.0.0
+      - PORT=8000
+      # ML Model Flags
+      - ENABLE_ML_MODELS=true
+      - USE_MOCK=false
+      - ENABLE_SNORING=true
+      - ENABLE_VIDEO_POSE=false
+      # Model Paths
+      - SPO2_MODEL_PATH=backend/models/SpO2_weights.hdf5
+      - ECG_MODEL_PATH=backend/models/ecg_weights.hdf5
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./uploads:/app/uploads
+      - ./backend/models:/app/backend/models
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "python", "-c", "import requests; requests.get('http://localhost:8000/api/v1/health')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+networks:
+  default:
+    name: somnia-network

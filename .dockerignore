@@ -1,0 +1,26 @@
+# Ignore VCS and metadata
+.git
+.github
+
+# Node artifacts
+somnia-app/**/node_modules
+somnia-app/**/dist
+somnia-app/**/.expo
+somnia-app/**/web-build
+
+# Python envs and caches
+.venv
+venv
+**/__pycache__
+**/*.pyc
+
+# Local data/uploads and large model weights
+uploads
+backend/models/*.hdf5
+backend/models/snoring/*.pb
+backend/models/snoring/*.tflite
+backend/models/snoring/*.onnx
+
+# OS/editor
+.DS_Store
+*.log
