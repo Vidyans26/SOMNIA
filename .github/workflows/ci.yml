@@ -14,10 +14,10 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-      - name: Install minimal backend deps
+      - name: Install backend dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install fastapi uvicorn pydantic numpy pytest httpx pyjwt
+          pip install -r backend/requirements.txt
       - name: Set PYTHONPATH
         run: echo "PYTHONPATH=$PWD" >> $GITHUB_ENV
       - name: Run backend tests

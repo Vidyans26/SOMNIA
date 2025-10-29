@@ -1,8 +1,10 @@
-# 📱 Expo Go SDK 51 - Installation Guide
+# 📱 Expo Go SDK 51 - Installation Guide (Android Only)
 
 **⚠️ CRITICAL INFORMATION FOR ANDROID USERS**
 
 SOMNIA requires **Expo Go SDK 51**. The Google Play Store version is **SDK 54** and **will NOT work**.
+
+**Note:** iOS support is not available for this project.
 
 ---
 
@@ -37,16 +39,6 @@ Some Android versions require additional permission:
 
 ---
 
-## 🍎 iOS Installation
-
-### Simple Installation
-
-**Download from App Store:** [https://apps.apple.com/app/expo-go/id982107779](https://apps.apple.com/app/expo-go/id982107779)
-
-The App Store version supports SDK 51 natively. No special configuration needed!
-
----
-
 ## ✅ Verification
 
 After installation:
@@ -65,8 +57,7 @@ After installation:
 **Problem:** You downloaded the wrong version
 
 **Solution:**
-- **Android:** Make sure you downloaded from [https://expo.dev/go?sdkVersion=51&platform=android&device=true](https://expo.dev/go?sdkVersion=51&platform=android&device=true)
-- **iOS:** Update to latest App Store version
+- Make sure you downloaded from [https://expo.dev/go?sdkVersion=51&platform=android&device=true](https://expo.dev/go?sdkVersion=51&platform=android&device=true)
 
 ### Issue: "Can't install APK on Android"
 
@@ -92,7 +83,6 @@ After installation:
 | Platform | Download Link | Notes |
 |----------|---------------|-------|
 | **Android** | [SDK 51 APK](https://expo.dev/go?sdkVersion=51&platform=android&device=true) | ⚠️ Required - Don't use Play Store! |
-| **iOS** | [App Store](https://apps.apple.com/app/expo-go/id982107779) | ✅ Works fine |
 
 ---
 
@@ -137,15 +127,10 @@ After installation:
 - ❌ Don't use Play Store (has SDK 54)
 - ✅ Enable unknown sources to install APK
 - ✅ Grant camera/microphone permissions
-
-**iOS Users:**
-- ✅ Download from App Store
-- ✅ Works out of the box with SDK 51
-
-**Everyone:**
 - ✅ Scan QR code from `npx expo start`
-- ✅ Grant permissions when prompted
 - ✅ Enjoy SOMNIA! 😴
+
+**Note:** iOS is not supported for this project.
 
 ---
 

@@ -187,9 +187,9 @@ Get SOMNIA up and running in under 5 minutes!
 ### Prerequisites
 - **Docker & Docker Compose** ([download](https://www.docker.com/get-started))
 - **Node.js 18+** (for mobile app) ([download](https://nodejs.org/))
-- **Expo Go SDK 51** (for mobile testing) - ⚠️ **IMPORTANT:** Download SDK 51, not latest from Play Store
+- **Expo Go SDK 51** (for mobile testing on Android) - ⚠️ **IMPORTANT:** Download SDK 51, not latest from Play Store
   - **Android:** [Download Expo Go SDK 51](https://expo.dev/go?sdkVersion=51&platform=android&device=true)
-  - **iOS:** [Download from App Store](https://apps.apple.com/app/expo-go/id982107779) (supports SDK 51)
+  - **Note:** iOS is not supported for this project
 - **Git** ([download](https://git-scm.com/))
 
 ### Option 1: Docker Deployment (Recommended)
@@ -239,11 +239,11 @@ npm install
 npx expo start
 ```
 
-**📱 Install Expo Go SDK 51:**
+**📱 Install Expo Go SDK 51 (Android only):**
 - ⚠️ **Android:** The Play Store has SDK 54, which won't work. Download SDK 51: [https://expo.dev/go?sdkVersion=51&platform=android&device=true](https://expo.dev/go?sdkVersion=51&platform=android&device=true)
-- **iOS:** Download from App Store (supports SDK 51)
+- **Note:** iOS is not supported for this project
 
-Scan the QR code with **Expo Go SDK 51** app on your phone.
+Scan the QR code with **Expo Go SDK 51** app on your Android phone.
 
 ### Option 2: Manual Setup (Development)
 
@@ -540,9 +540,9 @@ curl http://localhost:8000/api/v1/demo-analysis
 ```
 
 **Test Mobile App:**
-1. Install Expo Go SDK 51 on your phone:
+1. Install Expo Go SDK 51 on your Android phone:
    - **Android:** [Download SDK 51](https://expo.dev/go?sdkVersion=51&platform=android&device=true) (⚠️ Don't use Play Store version)
-   - **iOS:** Download from App Store
+   - **Note:** iOS is not supported for this project
 2. Open Expo Go and scan QR code
 3. Record 30-second sleep audio
 4. Stop recording

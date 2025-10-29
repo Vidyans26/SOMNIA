@@ -8,9 +8,9 @@
 
 ✅ [Docker Desktop](https://www.docker.com/get-started) installed  
 ✅ [Node.js 18+](https://nodejs.org/) installed  
-✅ Phone with **Expo Go SDK 51** - ⚠️ **IMPORTANT:**
+✅ Android phone with **Expo Go SDK 51** - ⚠️ **IMPORTANT:**
    - **Android:** [Download SDK 51](https://expo.dev/go?sdkVersion=51&platform=android&device=true) (don't use Play Store!)
-   - **iOS:** [App Store version](https://apps.apple.com/app/expo-go/id982107779) works fine
+   - **Note:** iOS is not supported for this project
 
 ---
 
@@ -61,10 +61,10 @@ npx expo start
 
 ## Step 4: Open on Phone (30 seconds)
 
-1. Install **Expo Go SDK 51** on your phone:
+1. Install **Expo Go SDK 51** on your Android phone:
    - **Android:** [Download SDK 51 APK](https://expo.dev/go?sdkVersion=51&platform=android&device=true)
-   - **iOS:** Download from App Store
    - ⚠️ **Don't use Android Play Store** (has incompatible SDK 54)
+   - **Note:** iOS is not supported for this project
 2. Open **Expo Go SDK 51** app
 3. **Scan QR code** from terminal
 4. Grant **camera & microphone** permissions
