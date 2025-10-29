@@ -2,6 +2,8 @@
 
 **Get SOMNIA running in 5 minutes or less!**
 
+**🎬 Prefer video instructions?** [Watch our Setup & Demo Video](https://www.youtube.com/watch?v=3ckxFWbgH78)
+
 ---
 
 ## Prerequisites

@@ -35,6 +35,8 @@
 
 **🚀 NEW USER?** Start here → [QUICKSTART.md](QUICKSTART.md) (5-minute setup guide)
 
+**🎬 WATCH DEMO:** [Setup & Demo Video](https://www.youtube.com/watch?v=3ckxFWbgH78) - See SOMNIA in action!
+
 ---
 
 ## 🎯 Overview
@@ -200,6 +202,8 @@ For detailed architecture, see [ARCHITECTURE.md](./docs/ARCHITECTURE.md)
 ## 🚀 Quick Start
 
 Get SOMNIA up and running in under 5 minutes!
+
+**🎬 Prefer a video?** [Watch our Setup & Demo Video](https://www.youtube.com/watch?v=3ckxFWbgH78)
 
 ### Prerequisites
 - **Docker & Docker Compose** ([download](https://www.docker.com/get-started))

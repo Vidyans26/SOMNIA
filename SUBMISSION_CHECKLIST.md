@@ -281,6 +281,7 @@ ML INTEGRATION VERIFIED ✅
 - [x] **API Examples** - JSON sample files
 - [x] **Privacy Policy** - PRIVACY.md
 - [x] **Model Card** - ML specifications
+- [x] **Demo Video** - [Setup & Demo on YouTube](https://www.youtube.com/watch?v=3ckxFWbgH78)
 
 ---
 

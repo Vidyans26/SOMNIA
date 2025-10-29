@@ -2,6 +2,8 @@
 
 **Welcome to SOMNIA Documentation!** This index helps you find the right guide for your needs.
 
+**🎬 NEW:** [Watch our Setup & Demo Video](https://www.youtube.com/watch?v=3ckxFWbgH78) - See SOMNIA in action!
+
 ---
 
 ## 🚀 Getting Started (Start Here!)
