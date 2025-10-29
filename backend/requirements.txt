@@ -29,6 +29,7 @@ tensorflow>=2.12.0
 
 # HTTP client
 requests>=2.31
+httpx>=0.24.0  # Required for FastAPI TestClient
 
 # Optional / production
 gunicorn>=20.1.0
