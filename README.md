@@ -48,7 +48,13 @@ SOMNIA is a **production-ready** sleep monitoring solution that combines multipl
 - ECG analysis (Cardiac abnormality detection)
 - Audio processing (Snoring detection)
 
-📱 **Mobile-First** - Beautiful React Native app with:
+� **Privacy-First Design** - Your data stays yours:
+- MediaPipe pose extraction processes video locally (never stored)
+- Only anonymized pose landmarks sent to server
+- Raw video immediately discarded after analysis
+- No cloud storage of sensitive recordings
+
+�📱 **Mobile-First** - Beautiful React Native app with:
 - Real-time audio/video recording
 - Wearable data integration
 - ML-enhanced sleep insights
@@ -56,8 +62,8 @@ SOMNIA is a **production-ready** sleep monitoring solution that combines multipl
 
 🔬 **Multimodal Analysis** - Combines:
 - Audio Analysis (snoring, breathing patterns)
+- Video Analysis (sleep position via MediaPipe pose extraction)
 - Wearable Data (SpO2, heart rate)
-- Movement Tracking (sleep positions)
 - Environmental Factors (temperature, light)
 
 ### Key Capabilities
@@ -84,46 +90,53 @@ SOMNIA is a **production-ready** sleep monitoring solution that combines multipl
 ### Mobile Application
 - ✅ React Native cross-platform app
 - ✅ Audio recording for sleep analysis
+- ✅ Video recording with privacy-preserving pose extraction (MediaPipe)
 - ✅ Real-time sleep monitoring
 - ✅ Results dashboard with visualizations
 - ✅ User profile management
 - ✅ Sleep disorder information library
 - ✅ Offline data storage
+- ✅ Local-first processing for maximum privacy
 
 ### Sleep Analysis
 - ✅ Audio-based snoring detection
+- ✅ Video-based pose estimation (MediaPipe) for sleep position tracking
 - ✅ Sleep stage classification
 - ✅ Movement pattern analysis
 - ✅ Heart rate variability monitoring
 - ✅ Disorder probability scoring
 - ✅ Personalized sleep recommendations
+- ✅ Privacy-preserving data processing
 
 ---
 
 ## 🏗️ System Architecture
 
-SOMNIA uses a **multimodal approach** with complete ML integration:
+SOMNIA uses a **privacy-first multimodal approach** with complete ML integration:
 
 ```
 ┌─────────────────────────────────────────────────────────────────┐
-│                    SOMNIA Architecture v1.0                     │
+│           SOMNIA Architecture v1.0 (Privacy-Preserving)         │
 └─────────────────────────────────────────────────────────────────┘
 
 ┌──────────────────┐
 │   Mobile App     │  React Native + Expo SDK 51
 │  (Somnia.app)    │  • Audio Recording
-│                  │  • Video Capture
+│                  │  • Video Capture → MediaPipe Pose Extraction
 └────────┬─────────┘  • Wearable Data Collection
+         │            • LOCAL Processing (Privacy-First)
          │            • Real-time UI Updates
          │
          │ HTTP/REST API
-         │ (JSON Payloads)
+         │ (JSON Payloads - NO RAW VIDEO)
+         │ Only anonymized pose landmarks sent
          ↓
 ┌──────────────────┐
 │  Backend API     │  FastAPI + Python 3.11+
 │   (main.py)      │  • Request Validation
 │                  │  • Data Preprocessing
 └────────┬─────────┘  • Endpoint Routing
+         │            • Privacy-Preserving Processing
          │            • Error Handling
          │
          ├──────────────────────────────────────────┐
@@ -135,10 +148,12 @@ SOMNIA uses a **multimodal approach** with complete ML integration:
 │                  │                      │                  │
 │ • SpO2 Model     │                      │ • Sleep Stages   │
 │   (TensorFlow)   │                      │ • Efficiency     │
-│ • ECG Model      │                      │ • Disorders      │
-│   (Keras)        │                      │ • Risk Score     │
-│ • Snoring Model  │                      │ • Recommendations│
-│   (Audio ML)     │                      │                  │
+│ • ECG Model      │                      │ • Sleep Position │
+│   (Keras)        │                      │   (MediaPipe)    │
+│ • Snoring Model  │                      │ • Disorders      │
+│   (Audio ML)     │                      │ • Risk Score     │
+│ • Pose Analysis  │                      │ • Recommendations│
+│   (MediaPipe)    │                      │                  │
 └────────┬─────────┘                      └────────┬─────────┘
          │                                          │
          └──────────────────┬───────────────────────┘
@@ -163,10 +178,13 @@ SOMNIA uses a **multimodal approach** with complete ML integration:
                   │ • ML Insights    │
                   └──────────────────┘
 
-Data Flow:
-──────────
+🔒 Privacy-First Data Flow:
+────────────────────────────
 1. Mobile app collects audio/video/wearable data
-2. Data sent to backend via POST /api/v1/analyze
+2. Video processed LOCALLY via MediaPipe (pose extraction)
+3. Only pose landmarks (33 keypoints) sent to backend
+4. Raw video NEVER leaves device, immediately discarded
+5. Backend receives anonymized data only
 3. Backend loads and preprocesses features
 4. ML models perform inference (SpO2, ECG, Snoring)
 5. Results fused and analyzed for disorders
