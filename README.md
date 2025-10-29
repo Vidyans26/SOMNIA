@@ -5,7 +5,6 @@
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.104-green)
 ![TensorFlow](https://img.shields.io/badge/TensorFlow-2.20-orange)
 ![React Native](https://img.shields.io/badge/React%20Native-0.74-blue)
-[![CI](https://github.com/Vidyans26/SOMNIA/actions/workflows/ci.yml/badge.svg)](https://github.com/Vidyans26/SOMNIA/actions/workflows/ci.yml)
 [![Docs](https://img.shields.io/badge/docs-comprehensive-brightgreen)](docs/)
 
 > **"Somnia knows your sleep better than you do."**
