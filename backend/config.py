@@ -4,9 +4,6 @@ Team: Chimpanzini Bananini
 """
 
 import os
-from dotenv import load_dotenv
-
-load_dotenv()
 
 # API Configuration
 API_VERSION = "0.1.0"
